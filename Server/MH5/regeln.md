@@ -17,6 +17,10 @@ Trotz der enormen Freiheiten sind folgende Dinge strengstens untersagt und führ
 
 Jegliche Art von ***Client-Modifikationen***, die einen unfairen Vorteil verschaffen <span class="sh-blur">(z.B. Hack-Clients, X-Ray, Killaura, Fly-Hack, Reach-Modifikationen, Auto-Clicker oder Makros),</span> sind strikt verboten. Erlaubt sind standardmäßige Performance-Mods (wie Sodium, Lithium) sowie optische Clients (wie Lunar Client oder Vanilla-freundliche Shader/Replay-Mod).
 
+MEHR infos findest du hier -> [Client Modifikations Liste](https://mh-wiki.netlify.app/#Server/MH5/Erlaubte-Client-Modifikationen.md)
+
+
+
 ## B) Beleidigungen & Respektlosigkeit (OOC / Chat):
 
 Toxisches Verhalten, rassistische, sexistische, diskriminierende oder extrem herabwürdigende Äußerungen im Chat, über Voice-Chat oder in Projekt-Discord-Kanälen werden absolut nicht toleriert.
