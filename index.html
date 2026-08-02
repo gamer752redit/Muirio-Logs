@@ -1,413 +1,559 @@
 <!DOCTYPE html>
 <html lang="de" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📚 WikiDash</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        :root {
-            --bg: #0a0514;
-            --bg2: #110b1f;
-            --bg3: #1c1330;
-            --border: #2a1f45;
-            --text: #e1daf0;
-            --text2: #b6a9d4;
-            --muted: #6f628b;
-            --accent: #8b5cf6;
-            --accent2: #a78bfa;
-            --accent3: #6d28d9;
-            --radius: 10px;
-            --radius2: 14px;
-            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            --mono: 'JetBrains Mono', 'Fira Code', monospace;
-            --side-w: 260px;
-            --top-h: 48px;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior:smooth; font-size:14px; }
-        body {
-            font-family:var(--font);
-            background:var(--bg);
-            color:var(--text);
-            display:flex;
-            height:100vh;
-            overflow:hidden;
-        }
-        ::-webkit-scrollbar { width:4px; }
-        ::-webkit-scrollbar-track { background:transparent; }
-        ::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📚 Muirio‑Logs</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* ════════════════ DESIGN SYSTEM ════════════════ */
+    :root {
+      --bg: #0b0714;
+      --bg2: #110a1f;
+      --bg3: #1a1030;
+      --border: #2a1f45;
+      --text: #d4cce0;
+      --text2: #9a8fb8;
+      --muted: #5e5378;
+      --accent: #7c5af5;
+      --accent2: #a084f0;
+      --radius: 6px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      --sidebar-w: 250px;
+      --topbar-h: 40px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size: 13px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* ── Scrollbar (thin) ── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-        /* Sidebar */
-        #sidebar {
-            width:var(--side-w); min-width:var(--side-w);
-            background:var(--bg2);
-            border-right:1px solid var(--border);
-            display:flex; flex-direction:column;
-            z-index:100;
-        }
-        .side-head {
-            height:var(--top-h); padding:0 16px;
-            display:flex; align-items:center; gap:10px;
-            border-bottom:1px solid var(--border);
-            flex-shrink:0;
-        }
-        .logo {
-            font-weight:700; font-size:1rem;
-            background:linear-gradient(135deg, var(--accent2), var(--accent));
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-            cursor:pointer; letter-spacing:-0.02em;
-        }
-        .side-tree {
-            flex:1; overflow-y:auto; padding:6px 8px;
-            font-size:0.8rem;
-        }
-        .tree-item {
-            display:flex; align-items:center; gap:6px;
-            padding:6px 10px; border-radius:6px;
-            cursor:pointer; transition:0.15s;
-            color:var(--text2); border:1px solid transparent;
-            white-space:nowrap; user-select:none;
-        }
-        .tree-item:hover { background:var(--bg3); color:var(--text); }
-        .tree-item.active {
-            background:rgba(139,92,246,0.15);
-            color:var(--accent2); border-color:rgba(139,92,246,0.3);
-            font-weight:500;
-        }
-        .tree-item .icon { width:18px; text-align:center; }
-        .tree-children { padding-left:16px; }
-        .collapsed { display:none; }
+    /* ── SIDEBAR (VS Code File Explorer) ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      z-index: 100;
+    }
+    .sidebar-head {
+      padding: 0 12px;
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: -0.01em;
+      color: var(--text2);
+    }
+    .sidebar-tree {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+    .tree-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 12px;
+      cursor: pointer;
+      color: var(--text2);
+      white-space: nowrap;
+      transition: background 0.1s;
+      border: 1px solid transparent;
+    }
+    .tree-row:hover { background: var(--bg3); color: var(--text); }
+    .tree-row.active {
+      background: rgba(124, 90, 245, 0.15);
+      color: var(--accent2);
+      border-color: rgba(124, 90, 245, 0.25);
+    }
+    .tree-row .icon { width: 16px; text-align: center; font-size: 0.9rem; }
+    .tree-children { padding-left: 16px; }
+    .collapsed { display: none; }
 
-        /* Main */
-        #main {
-            flex:1; display:flex; flex-direction:column;
-            overflow-y:auto;
-        }
-        #topbar {
-            height:var(--top-h); min-height:var(--top-h);
-            border-bottom:1px solid var(--border);
-            display:flex; align-items:center; padding:0 20px;
-            background:var(--bg2); position:sticky; top:0; z-index:50;
-        }
-        #breadcrumb {
-            flex:1; font-size:0.8rem; color:var(--muted);
-            display:flex; gap:4px; align-items:center;
-        }
-        #breadcrumb span { cursor:pointer; padding:2px 6px; border-radius:4px; }
-        #breadcrumb span:hover { color:var(--accent2); background:var(--bg3); }
-        #burger {
-            display:none; background:none; border:1px solid var(--border);
-            color:var(--text); font-size:1.2rem; cursor:pointer;
-            padding:4px 10px; border-radius:6px; margin-right:12px;
-        }
+    /* ── MAIN CONTENT ── */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    #topbar {
+      height: var(--topbar-h);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      background: var(--bg2);
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    #breadcrumb {
+      flex: 1;
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
+    #breadcrumb span {
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    #breadcrumb span:hover { color: var(--accent2); background: var(--bg3); }
+    #search {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      width: 160px;
+      outline: none;
+      transition: 0.15s;
+    }
+    #search:focus { border-color: var(--accent); width: 200px; }
 
-        /* Content */
-        #content {
-            flex:1; padding:28px 32px 50px;
-            max-width:900px; width:100%; margin:0 auto;
-            animation:fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+    /* ── CONTENT AREA ── */
+    #content {
+      flex: 1;
+      padding: 24px 32px 40px;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .home-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .home-card:hover {
+      border-color: var(--accent);
+      background: var(--bg3);
+    }
+    .home-card .card-icon { font-size: 1.5rem; }
+    .home-card .card-name { font-weight: 600; font-size: 0.9rem; }
 
-        .hero {
-            text-align:center; padding:30px 20px 20px;
-            background:linear-gradient(160deg, #150c2b, #0a0514);
-            border-radius:var(--radius2); margin-bottom:28px;
-            border:1px solid var(--border);
-        }
-        .hero h1 {
-            font-size:1.8rem; font-weight:700; letter-spacing:-0.02em;
-            background:linear-gradient(135deg, var(--accent2), var(--accent));
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-        }
-        .topic-grid {
-            display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
-            gap:12px;
-        }
-        .topic-card {
-            background:var(--bg2); border:1px solid var(--border);
-            border-radius:var(--radius2); padding:18px 16px;
-            cursor:pointer; transition:0.2s;
-            text-decoration:none; color:inherit;
-        }
-        .topic-card:hover {
-            border-color:var(--accent);
-            box-shadow:0 4px 20px rgba(139,92,246,0.15);
-            transform:translateY(-2px);
-        }
-        .topic-card .t-icon { font-size:1.8rem; }
-        .topic-card .t-name { font-weight:600; margin-top:6px; }
-        .topic-card .t-desc { font-size:0.75rem; color:var(--muted); margin-top:4px; }
+    /* Datei-/Ordnerliste (explorer-ähnlich) */
+    .file-list { margin-top: 12px; }
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.1s;
+      color: var(--text2);
+    }
+    .file-item:hover { background: var(--bg3); color: var(--text); }
+    .file-item .fi-icon { width: 20px; text-align: center; }
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin: 16px 0 6px;
+    }
 
-        .article-body {
-            background:var(--bg2); border:1px solid var(--border);
-            border-radius:var(--radius2); padding:24px 28px;
-            line-height:1.8;
-        }
-        .article-body h1,.article-body h2,.article-body h3 { color:var(--accent2); margin:1.3em 0 0.4em; }
-        .article-body p { margin-bottom:0.8em; color:var(--text2); }
-        .article-body a { color:var(--accent2); text-decoration:underline; }
-        .article-body img, .article-body video { max-width:100%; border-radius:var(--radius); margin:0.8em 0; }
-        .article-body pre {
-            background:#0a0618; border:1px solid var(--border);
-            border-radius:var(--radius); padding:14px;
-            overflow-x:auto; margin:1em 0;
-        }
-        .article-body code {
-            background:var(--bg3); padding:2px 6px; border-radius:4px;
-            font-family:var(--mono); font-size:0.85em;
-        }
-        .dl-btn {
-            display:inline-block; padding:8px 18px;
-            background:var(--accent3); color:#fff; border-radius:6px;
-            text-decoration:none; font-size:0.85rem; transition:0.2s;
-        }
-        .dl-btn:hover { background:var(--accent); }
+    /* Markdown Article */
+    .article-body {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-top: 12px;
+      line-height: 1.7;
+    }
+    .article-body h1,.article-body h2,.article-body h3 { color: var(--accent2); margin: 1.2em 0 0.3em; }
+    .article-body p { margin-bottom: 0.7em; color: var(--text2); }
+    .article-body a { color: var(--accent2); text-decoration: underline; }
+    .article-body img,.article-body video { max-width: 100%; border-radius: 4px; margin: 0.8em 0; }
+    .article-body pre {
+      background: #0b0618;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+    }
+    .article-body code {
+      background: var(--bg3);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 0.85em;
+    }
+    .dl-btn {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 8px;
+      font-size: 0.85rem;
+    }
+    .dl-btn:hover { background: var(--accent2); }
 
-        /* ─── 30+ SHADER KLASSEN ─── */
-        .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-rainbow 3s linear infinite; font-weight:700; }
-        @keyframes sh-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
-        .sh-glow { text-shadow:0 0 8px var(--accent2),0 0 20px var(--accent); animation:sh-glow 2s ease-in-out infinite; }
-        @keyframes sh-glow { 0%,100%{text-shadow:0 0 8px var(--accent2)} 50%{text-shadow:0 0 25px #fff,0 0 50px var(--accent2)} }
-        .sh-neon { text-shadow:0 0 5px #fff,0 0 15px #0ff,0 0 30px #0ff; animation:sh-neon 1.5s infinite alternate; }
-        @keyframes sh-neon { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:0.4} }
-        .sh-fire { color:#ff6a00; text-shadow:0 0 8px #ff4500,0 0 20px #ff6347; animation:sh-fire 0.8s infinite alternate; }
-        @keyframes sh-fire { 0%{text-shadow:0 0 8px #ff4500} 100%{text-shadow:0 0 15px #ffa500,0 0 35px #ff4500} }
-        .sh-ice { color:#a0d8ef; text-shadow:0 0 8px #87ceeb; animation:sh-ice 2s ease-in-out infinite; }
-        @keyframes sh-ice { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.4)} }
-        .sh-shadow { text-shadow:3px 3px 0 rgba(0,0,0,0.4),6px 6px 0 rgba(139,92,246,0.2); }
-        .sh-outline { -webkit-text-stroke:2px var(--accent); color:#fff; }
-        .sh-gradient-bg { background:linear-gradient(135deg, #8b5cf6, #ec4899); padding:2px 8px; border-radius:5px; color:#fff; font-weight:600; }
-        .sh-warn { background:rgba(239,68,68,0.18); border:2px solid #ef4444; border-radius:8px; padding:10px 16px; color:#fca5a5; font-weight:600; box-shadow:0 0 20px rgba(239,68,68,0.3); animation:sh-warn 1.5s ease-in-out infinite; outline:2px solid rgba(239,68,68,0.4); outline-offset:2px; }
-        @keyframes sh-warn { 0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.3)} 50%{box-shadow:0 0 40px rgba(239,68,68,0.6)} }
-        .sh-spin { display:inline-block; animation:sh-spin 2s linear infinite; }
-        @keyframes sh-spin { to{transform:rotate(360deg)} }
-        .sh-bounce { display:inline-block; animation:sh-bounce 0.6s ease-in-out infinite alternate; }
-        @keyframes sh-bounce { 0%{transform:translateY(0)} 100%{transform:translateY(-10px)} }
-        .sh-wave { display:inline-block; animation:sh-wave 1.5s ease-in-out infinite; }
-        @keyframes sh-wave { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-6px)} 75%{transform:translateY(4px)} }
-        .sh-glitch { position:relative; animation:sh-glitch 0.3s infinite; }
-        @keyframes sh-glitch { 0%,100%{transform:translate(0)} 20%{transform:translate(-2px,2px)} 40%{transform:translate(2px,-2px)} 60%{transform:translate(-1px,-1px)} 80%{transform:translate(1px,1px)} }
-        .sh-sparkle { background:linear-gradient(90deg,#ffd700,#fff8dc,#ffd700); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-sparkle 2s linear infinite; }
-        @keyframes sh-sparkle { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
-        .sh-holo { background:linear-gradient(135deg,#ff0080,#ff8c00,#40e0d0,#ff0080); background-size:300% 300%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-holo 4s ease infinite; }
-        @keyframes sh-holo { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-        .sh-matrix { color:#0f0; text-shadow:0 0 8px #0f0; font-family:monospace; }
-        .sh-void { background:#fff; color:#000; padding:2px 6px; border-radius:3px; font-weight:700; }
-        .sh-underline-glow { border-bottom:2px solid var(--accent); box-shadow:0 2px 12px rgba(139,92,246,0.3); text-decoration:none; }
-        .sh-strike-glow { text-decoration:line-through; text-decoration-color:var(--accent); text-decoration-thickness:2px; text-shadow:0 0 8px var(--accent); }
-        .sh-double-line { border-top:2px solid var(--accent2); border-bottom:2px solid var(--accent2); padding:4px 0; display:inline-block; }
-        .sh-zoom { display:inline-block; animation:sh-zoom 2s ease-in-out infinite; }
-        @keyframes sh-zoom { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
-        .sh-pulse { animation:sh-pulse 1s ease-in-out infinite; }
-        @keyframes sh-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-        .sh-flicker { animation:sh-flicker 0.1s infinite alternate; }
-        @keyframes sh-flicker { 0%{opacity:1} 100%{opacity:0.7} }
-        .sh-reveal { position:relative; overflow:hidden; display:inline-block; }
-        .sh-reveal::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:var(--accent); animation:sh-reveal 2s forwards; }
-        @keyframes sh-reveal { 0%{transform:translateX(-100%)} 100%{transform:translateX(0)} }
-        .sh-blur { filter:blur(1px); transition:filter 0.3s; }
-        .sh-blur:hover { filter:blur(0); }
-        .sh-metal { background:linear-gradient(180deg,#ddd,#999,#ddd); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700; }
-        .sh-emboss { text-shadow:1px 1px 0 rgba(255,255,255,0.2), -1px -1px 0 rgba(0,0,0,0.4); color:#aaa; }
-        .sh-spotlight { background:radial-gradient(circle, var(--accent2) 0%, transparent 70%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .sh-typewriter { display:inline-block; overflow:hidden; white-space:nowrap; border-right:2px solid var(--accent); animation:sh-typewriter 3s steps(30) 1s forwards, blink 0.75s step-end infinite; width:0; }
-        @keyframes sh-typewriter { from{width:0} to{width:100%} }
-        @keyframes blink { 0%,100%{border-color:transparent} 50%{border-color:var(--accent)} }
-        .sh-shade { text-shadow:2px 2px 4px rgba(0,0,0,0.5), -2px -2px 4px rgba(255,255,255,0.1); }
+    /* ── MOBILE ── */
+    @media (max-width: 700px) {
+      #sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        height: 100vh;
+        z-index: 200;
+        transition: left 0.25s;
+      }
+      #sidebar.open { left: 0; }
+      #burger {
+        display: block;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-size: 1.2rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-right: 8px;
+      }
+      #content { padding: 16px; }
+    }
+    #burger { display: none; }
+  </style>
 
-        @media (max-width:768px) {
-            #sidebar { position:fixed; left:-100%; top:0; z-index:200; transition:left 0.3s; }
-            #sidebar.open { left:0; }
-            #burger { display:block; }
-            #content { padding:16px; }
-            .topic-grid { grid-template-columns:1fr; }
-        }
-    </style>
+  <!-- ══════════ 40+ SHADER EFFECTS (für Markdown) ══════════ -->
+  <style>
+    /* 1. Rainbow */ .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-rainbow 3s linear infinite; font-weight:700; }
+    @keyframes sh-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+    /* 2. Glow */ .sh-glow { text-shadow:0 0 8px var(--accent2),0 0 20px var(--accent); animation:sh-glow 2s infinite alternate; }
+    @keyframes sh-glow { from{text-shadow:0 0 8px var(--accent2)} to{text-shadow:0 0 20px #fff,0 0 35px var(--accent2)} }
+    /* 3. Neon */ .sh-neon { text-shadow:0 0 5px #fff,0 0 15px #0ff,0 0 30px #0ff; animation:sh-neon 1.5s infinite alternate; }
+    @keyframes sh-neon { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:0.4} }
+    /* 4. Fire */ .sh-fire { color:#ff6a00; text-shadow:0 0 8px #ff4500,0 0 20px #ff6347; animation:sh-fire 0.8s infinite alternate; }
+    @keyframes sh-fire { from{text-shadow:0 0 8px #ff4500} to{text-shadow:0 0 15px #ffa500,0 0 35px #ff4500} }
+    /* 5. Ice */ .sh-ice { color:#a0d8ef; text-shadow:0 0 8px #87ceeb; animation:sh-ice 2s ease-in-out infinite; }
+    @keyframes sh-ice { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.4)} }
+    /* 6. Shadow */ .sh-shadow { text-shadow:3px 3px 0 rgba(0,0,0,0.4),6px 6px 0 rgba(139,92,246,0.2); }
+    /* 7. Outline */ .sh-outline { -webkit-text-stroke:2px var(--accent); color:#fff; }
+    /* 8. Gradient BG */ .sh-gradient-bg { background:linear-gradient(135deg,#8b5cf6,#ec4899); padding:2px 8px; border-radius:4px; color:#fff; font-weight:600; }
+    /* 9. Warnung */ .sh-warn { background:rgba(239,68,68,0.18); border:2px solid #ef4444; border-radius:6px; padding:8px 14px; color:#fca5a5; font-weight:600; box-shadow:0 0 20px rgba(239,68,68,0.3); animation:sh-warn 1.5s infinite; outline:2px solid rgba(239,68,68,0.4); outline-offset:2px; }
+    @keyframes sh-warn { 0%,100%{box-shadow:0 0 20px rgba(239,68,68,0.3)} 50%{box-shadow:0 0 40px rgba(239,68,68,0.6)} }
+    /* 10. Spin */ .sh-spin { display:inline-block; animation:sh-spin 2s linear infinite; }
+    @keyframes sh-spin { to{transform:rotate(360deg)} }
+    /* 11. Bounce */ .sh-bounce { display:inline-block; animation:sh-bounce 0.6s ease-in-out infinite alternate; }
+    @keyframes sh-bounce { from{transform:translateY(0)} to{transform:translateY(-8px)} }
+    /* 12. Wave */ .sh-wave { display:inline-block; animation:sh-wave 1.5s ease-in-out infinite; }
+    @keyframes sh-wave { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-5px)} 75%{transform:translateY(3px)} }
+    /* 13. Glitch */ .sh-glitch { position:relative; animation:sh-glitch 0.3s infinite; }
+    @keyframes sh-glitch { 0%,100%{transform:translate(0)} 20%{transform:translate(-2px,2px)} 40%{transform:translate(2px,-2px)} 60%{transform:translate(-1px,-1px)} 80%{transform:translate(1px,1px)} }
+    /* 14. Sparkle */ .sh-sparkle { background:linear-gradient(90deg,#ffd700,#fff8dc,#ffd700); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-sparkle 2s linear infinite; }
+    @keyframes sh-sparkle { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+    /* 15. Holo */ .sh-holo { background:linear-gradient(135deg,#ff0080,#ff8c00,#40e0d0,#ff0080); background-size:300% 300%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-holo 4s ease infinite; }
+    @keyframes sh-holo { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    /* 16. Matrix */ .sh-matrix { color:#0f0; text-shadow:0 0 8px #0f0; font-family:monospace; }
+    /* 17. Void */ .sh-void { background:#fff; color:#000; padding:2px 6px; border-radius:3px; font-weight:700; }
+    /* 18. Underline Glow */ .sh-underline-glow { border-bottom:2px solid var(--accent); box-shadow:0 2px 12px rgba(139,92,246,0.3); text-decoration:none; }
+    /* 19. Strike Glow */ .sh-strike-glow { text-decoration:line-through; text-decoration-color:var(--accent); text-decoration-thickness:2px; text-shadow:0 0 8px var(--accent); }
+    /* 20. Double Line */ .sh-double-line { border-top:2px solid var(--accent2); border-bottom:2px solid var(--accent2); padding:4px 0; display:inline-block; }
+    /* 21. Zoom */ .sh-zoom { display:inline-block; animation:sh-zoom 2s ease-in-out infinite; }
+    @keyframes sh-zoom { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+    /* 22. Pulse */ .sh-pulse { animation:sh-pulse 1s ease-in-out infinite; }
+    @keyframes sh-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+    /* 23. Flicker */ .sh-flicker { animation:sh-flicker 0.1s infinite alternate; }
+    @keyframes sh-flicker { from{opacity:1} to{opacity:0.7} }
+    /* 24. Reveal */ .sh-reveal { position:relative; overflow:hidden; display:inline-block; }
+    .sh-reveal::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:var(--accent); animation:sh-reveal 2s forwards; }
+    @keyframes sh-reveal { from{transform:translateX(-100%)} to{transform:translateX(0)} }
+    /* 25. Blur (hover) */ .sh-blur { filter:blur(1px); transition:filter 0.3s; }
+    .sh-blur:hover { filter:blur(0); }
+    /* 26. Metal */ .sh-metal { background:linear-gradient(180deg,#ddd,#999,#ddd); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700; }
+    /* 27. Emboss */ .sh-emboss { text-shadow:1px 1px 0 rgba(255,255,255,0.2), -1px -1px 0 rgba(0,0,0,0.4); color:#aaa; }
+    /* 28. Spotlight */ .sh-spotlight { background:radial-gradient(circle, var(--accent2) 0%, transparent 70%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    /* 29. Typewriter */ .sh-typewriter { display:inline-block; overflow:hidden; white-space:nowrap; border-right:2px solid var(--accent); animation:sh-typewriter 3s steps(30) 1s forwards, blink 0.75s step-end infinite; width:0; }
+    @keyframes sh-typewriter { from{width:0} to{width:100%} }
+    @keyframes blink { 0%,100%{border-color:transparent} 50%{border-color:var(--accent)} }
+    /* 30. Shade */ .sh-shade { text-shadow:2px 2px 4px rgba(0,0,0,0.5), -2px -2px 4px rgba(255,255,255,0.1); }
+    /* 31. 3D Pop */ .sh-3d { text-shadow:1px 1px 0 #aaa, 2px 2px 0 #888, 3px 3px 0 #666; color:#fff; }
+    /* 32. Vaporwave */ .sh-vaporwave { color:#ff71ce; text-shadow:0 0 10px #01cdfe, 0 0 20px #05ffa1; font-style:italic; }
+    /* 33. Cyberpunk */ .sh-cyberpunk { color:#f0e68c; text-shadow:0 0 8px #ff00ff, 0 0 18px #00ffff; letter-spacing:2px; }
+    /* 34. Gold */ .sh-gold { background:linear-gradient(180deg,#bf953f,#fcf6ba,#b38728,#fbf5b7,#aa771c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    /* 35. Liquify */ .sh-liquify { filter:url(#liquify); } /* benutzt SVG-Filter, optional */
+    /* 36. Retro */ .sh-retro { font-family:'Courier New',monospace; background:#000; color:#0f0; padding:2px 6px; }
+    /* 37. Soft Shadow */ .sh-soft-shadow { text-shadow:0 4px 12px rgba(0,0,0,0.3); }
+    /* 38. Light Stripes */ .sh-stripes { background:repeating-linear-gradient(45deg, var(--accent2), var(--accent2) 2px, transparent 2px, transparent 6px); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    /* 39. Rotate */ .sh-rotate { display:inline-block; animation:sh-rotate 3s linear infinite; }
+    @keyframes sh-rotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    /* 40. Scramble (Hover) */ .sh-scramble:hover { animation:sh-scramble 0.2s steps(1) infinite; }
+    @keyframes sh-scramble { 0%{transform:translate(0)} 25%{transform:translate(-2px,1px)} 50%{transform:translate(2px,-1px)} 75%{transform:translate(-1px,-1px)} 100%{transform:translate(1px,1px)} }
+  </style>
 </head>
 <body>
-<div id="sidebar">
-    <div class="side-head">
-        <span style="font-size:1.2rem;">📚</span>
-        <span class="logo" onclick="navHome()">WikiDash</span>
-    </div>
-    <nav class="side-tree" id="treeNav"></nav>
-</div>
-<div id="overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:150; cursor:pointer;" onclick="closeSidebar()"></div>
 
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside id="sidebar">
+  <div class="sidebar-head">
+    <span style="font-size:1.1rem;">📁</span> Explorer
+  </div>
+  <div class="sidebar-tree" id="treeNav"></div>
+</aside>
+
+<!-- Overlay for mobile -->
+<div id="overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:150;" onclick="closeSidebar()"></div>
+
+<!-- ═══════════ MAIN ═══════════ -->
 <div id="main">
-    <header id="topbar">
-        <button id="burger" onclick="toggleSidebar()">☰</button>
-        <nav id="breadcrumb"><span onclick="navHome()">🏠 Home</span></nav>
-    </header>
-    <main id="content"></main>
+  <header id="topbar">
+    <button id="burger" onclick="toggleSidebar()">☰</button>
+    <nav id="breadcrumb"><span onclick="navHome()">🏠 Home</span></nav>
+    <input type="text" id="search" placeholder="⌕ Suchen..." oninput="doSearch(this.value)">
+  </header>
+  <main id="content"></main>
 </div>
 
 <script>
-    const GITHUB_USER = 'gamer752redit';
-    const GITHUB_REPO = 'Muirio-Logs';
-    const API = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
+  // ═══════════ KONFIG ═══════════
+  const GITHUB_USER = 'gamer752redit';
+  const GITHUB_REPO = 'Muirio-Logs';
+  const API = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents`;
 
-    let tree = { folders: [] };
-    let currentFolder = null;
-    let currentFile = null;
-    let expanded = {};
+  // ═══════════ STATE ═══════════
+  let tree = { folders: [] };
+  let currentFolder = null;   // Aktuell geöffneter Ordner-Pfad
+  let currentFile = null;     // Ausgewählte Datei
+  let expanded = {};          // Welche Ordner im Tree sind ausgeklappt
 
-    async function fetchDir(path = '') {
-        const resp = await fetch(`${API}/${path}`);
-        if (!resp.ok) return [];
-        const items = await resp.json();
-        const out = [];
-        for (const i of items) {
-            if (i.type === 'dir') {
-                const children = await fetchDir(i.path);
-                out.push({ type:'folder', name:i.name, path:i.path, children });
-            } else if (i.type === 'file') {
-                out.push({ type:'file', name:i.name, path:i.path, download_url:i.download_url });
-            }
+  // ═══════ DYNAMISCH LADEN ═══════
+  async function fetchDir(path = '') {
+    const resp = await fetch(`${API}/${path}`);
+    if (!resp.ok) return [];
+    const items = await resp.json();
+    const out = [];
+    for (const i of items) {
+      if (i.type === 'dir') {
+        const children = await fetchDir(i.path);
+        out.push({ type:'folder', name:i.name, path:i.path, children });
+      } else {
+        out.push({ type:'file', name:i.name, path:i.path, download_url:i.download_url });
+      }
+    }
+    return out;
+  }
+
+  async function init() {
+    try {
+      tree.folders = await fetchDir();
+      renderAll();
+    } catch(e) {
+      document.getElementById('content').innerHTML = '<p>⚠️ Fehler beim Laden der Repository-Struktur.</p>';
+    }
+  }
+
+  // ═══════ NAVIGATION ═══════
+  function navHome() { currentFolder = null; currentFile = null; renderAll(); }
+  function navFolder(path) { currentFolder = path; currentFile = null; renderAll(); }
+  async function navFile(file) { currentFile = file; renderAll(); }
+
+  // ═══════ RENDER ALL ═══════
+  function renderAll() {
+    renderSidebar();
+    renderContent();
+    renderBreadcrumb();
+  }
+
+  // ── SIDEBAR (Tree) ──
+  function renderSidebar() {
+    const nav = document.getElementById('treeNav');
+    let html = '';
+    function walk(items, depth = 0) {
+      for (const item of items) {
+        if (item.type === 'folder') {
+          const open = expanded[item.path] !== false;
+          html += `<div class="tree-row${currentFolder === item.path ? ' active' : ''}" style="padding-left:${12 + depth*14}px" onclick="event.stopPropagation(); toggleFolder('${item.path}')">
+            <span class="icon">${open ? '📂' : '📁'}</span>${item.name}
+          </div>`;
+          html += `<div class="tree-children${open ? '' : ' collapsed'}" data-folder="${item.path}">`;
+          if (item.children) walk(item.children, depth + 1);
+          html += `</div>`;
+        } else {
+          const icon = fileIcon(item.name);
+          html += `<div class="tree-row${currentFile?.path === item.path ? ' active' : ''}" style="padding-left:${12 + depth*14}px" onclick="navFile(${JSON.stringify(item).replace(/"/g,'&quot;')})">
+            <span class="icon">${icon}</span>${item.name.replace(/\.md$/, '')}
+          </div>`;
         }
-        return out;
+      }
     }
+    walk(tree.folders);
+    nav.innerHTML = html;
+  }
 
-    async function buildTree() {
-        try {
-            tree.folders = await fetchDir();
-            renderAll();
-        } catch (e) {
-            document.getElementById('content').innerHTML = '<p>⚠️ Fehler beim Laden der Repository‑Struktur.</p>';
+  function toggleFolder(path) {
+    expanded[path] = !expanded[path];
+    renderSidebar();
+  }
+
+  function fileIcon(name) {
+    if (/\.md$/i.test(name)) return '📄';
+    if (/\.(png|jpg|jpeg|gif|svg|webp)$/i.test(name)) return '🖼️';
+    if (/\.(mp4|webm|mov)$/i.test(name)) return '🎬';
+    return '📥';
+  }
+
+  // ── CONTENT ──
+  async function renderContent() {
+    const area = document.getElementById('content');
+    if (!currentFolder && !currentFile) {
+      // HOME: Ordner als Karten
+      const folders = tree.folders.filter(f => f.type === 'folder');
+      area.innerHTML = `
+        <div style="margin-bottom:24px;">
+          <h2 style="font-weight:600;color:var(--text);">📚 Muirio‑Logs</h2>
+          <p style="color:var(--muted); font-size:0.85rem;">Deine automatische Dokumentation</p>
+        </div>
+        <div class="home-grid">
+          ${folders.map(f => `
+            <div class="home-card" onclick="navFolder('${f.path}')">
+              <span class="card-icon">📁</span>
+              <span class="card-name">${f.name}</span>
+            </div>
+          `).join('')}
+        </div>`;
+    } else if (currentFolder && !currentFile) {
+      // ORDNERANSICHT: Liste von Unterordnern und Dateien
+      const folder = findFolderByPath(currentFolder);
+      if (!folder) return area.innerHTML = '<p>Ordner nicht gefunden.</p>';
+      const items = folder.children || [];
+      const folders = items.filter(i => i.type === 'folder');
+      const files = items.filter(i => i.type === 'file');
+
+      let html = `<h2 style="font-weight:600;">📁 ${folder.name}</h2>`;
+      if (folders.length) {
+        html += `<div class="section-title">Ordner</div><div class="file-list">`;
+        folders.forEach(f => {
+          html += `<div class="file-item" onclick="navFolder('${f.path}')"><span class="fi-icon">📁</span>${f.name}</div>`;
+        });
+        html += `</div>`;
+      }
+      if (files.length) {
+        html += `<div class="section-title">Dateien</div><div class="file-list">`;
+        files.forEach(f => {
+          const icon = fileIcon(f.name);
+          html += `<div class="file-item" onclick='navFile(${JSON.stringify(f)})'><span class="fi-icon">${icon}</span>${f.name.replace(/\.md$/,'')}</div>`;
+        });
+        html += `</div>`;
+      }
+      area.innerHTML = html;
+    } else if (currentFile) {
+      // DATEIANSICHT
+      const file = currentFile;
+      if (/\.md$/i.test(file.name)) {
+        let md = sessionStorage.getItem('md:'+file.path);
+        if (!md) {
+          const resp = await fetch(file.download_url);
+          md = await resp.text();
+          sessionStorage.setItem('md:'+file.path, md);
         }
+        area.innerHTML = `<h2 style="font-weight:600;">📄 ${file.name.replace(/\.md$/,'')}</h2><div class="article-body">${marked.parse(md)}</div>`;
+      } else if (/\.(png|jpg|jpeg|gif|svg|webp)$/i.test(file.name)) {
+        area.innerHTML = `<h2>🖼️ ${file.name}</h2><img src="${file.download_url}" alt="${file.name}" style="max-width:100%; border-radius:4px; margin-top:12px;">`;
+      } else if (/\.(mp4|webm|mov)$/i.test(file.name)) {
+        area.innerHTML = `<h2>🎬 ${file.name}</h2><video controls src="${file.download_url}" style="max-width:100%; border-radius:4px; margin-top:12px;"></video>`;
+      } else {
+        area.innerHTML = `<h2>📥 ${file.name}</h2><a class="dl-btn" href="${file.download_url}" download>⬇️ Download</a>`;
+      }
     }
+  }
 
-    function navHome() {
-        currentFolder = null;
-        currentFile = null;
-        renderAll();
+  function renderBreadcrumb() {
+    const bc = document.getElementById('breadcrumb');
+    let trail = '<span onclick="navHome()">🏠 Home</span>';
+    if (currentFolder) {
+      const parts = currentFolder.split('/').filter(Boolean);
+      let path = '';
+      parts.forEach(p => {
+        path += '/' + p;
+        trail += ` <span style="color:var(--muted);">/</span> <span onclick="navFolder('${path}')">${p}</span>`;
+      });
     }
-    function navFolder(path) {
-        currentFolder = path;
-        currentFile = null;
-        renderAll();
+    if (currentFile) {
+      trail += ` <span style="color:var(--muted);">/</span> <span style="color:var(--text);">${currentFile.name.replace(/\.md$/,'')}</span>`;
     }
-    async function navFile(file) {
-        currentFile = file;
-        renderAll();
-    }
+    bc.innerHTML = trail;
+  }
 
-    function renderAll() {
-        renderSidebar();
-        renderContent();
-    }
+  function findFolderByPath(path) {
+    const search = (items) => {
+      for (const i of items) {
+        if (i.type === 'folder' && i.path === path) return i;
+        if (i.children) { const f = search(i.children); if (f) return f; }
+      }
+      return null;
+    };
+    return search(tree.folders);
+  }
 
-    function renderSidebar() {
-        const nav = document.getElementById('treeNav');
-        let html = '';
-        function walk(items, depth = 0) {
-            for (const item of items) {
-                if (item.type === 'folder') {
-                    const open = expanded[item.path] !== false;
-                    html += `<div class="tree-item" style="padding-left:${10+depth*14}px" onclick="toggleFolder('${item.path}')">
-                        <span class="icon">${open?'📂':'📁'}</span>${item.name}
-                    </div>`;
-                    html += `<div class="tree-children${open?'':' collapsed'}" data-folder="${item.path}">`;
-                    if (item.children) walk(item.children, depth+1);
-                    html += `</div>`;
-                } else {
-                    const icon = item.name.match(/\.md$/i) ? '📄' :
-                                 item.name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i) ? '🖼️' :
-                                 item.name.match(/\.(mp4|webm|mov)$/i) ? '🎬' : '📥';
-                    html += `<div class="tree-item${currentFile?.path===item.path?' active':''}" style="padding-left:${10+depth*14}px" onclick="navFile(${JSON.stringify(item).replace(/"/g,'&quot;')})">
-                        <span class="icon">${icon}</span>${item.name.replace(/\.md$/,'')}
-                    </div>`;
-                }
-            }
-        }
-        walk(tree.folders);
-        nav.innerHTML = html;
-    }
+  // ═══════ SUCHE ═══════
+  function doSearch(q) {
+    if (!q) { renderAll(); return; }
+    const results = [];
+    const searchItems = (items) => {
+      for (const i of items) {
+        if (i.type === 'file' && i.name.toLowerCase().includes(q.toLowerCase())) results.push(i);
+        if (i.children) searchItems(i.children);
+      }
+    };
+    searchItems(tree.folders);
+    const area = document.getElementById('content');
+    area.innerHTML = `<h2>🔍 Suchergebnisse für „${q}“</h2>
+      <div class="file-list">${results.map(r => `<div class="file-item" onclick='navFile(${JSON.stringify(r)})'><span class="fi-icon">${fileIcon(r.name)}</span>${r.path}</div>`).join('')}</div>`;
+  }
 
-    function toggleFolder(path) {
-        expanded[path] = !expanded[path];
-        renderSidebar();
-    }
+  // ═══════ MOBILE ═══════
+  function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const ov = document.getElementById('overlay');
+    sb.classList.toggle('open');
+    ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').style.display = 'none';
+  }
 
-    async function renderContent() {
-        const area = document.getElementById('content');
-        if (!currentFolder && !currentFile) {
-            // Homepage: nur Ordner
-            const folders = tree.folders.filter(f => f.type==='folder');
-            area.innerHTML = `
-                <div class="hero">
-                    <h1>📚 Muirio‑Logs</h1>
-                    <p style="color:var(--muted);">Dokumentation & Notizen</p>
-                </div>
-                <div class="topic-grid">
-                    ${folders.map(f => `
-                        <div class="topic-card" onclick="navFolder('${f.path}')">
-                            <div class="t-icon">📁</div>
-                            <div class="t-name">${f.name}</div>
-                            <div class="t-desc">${f.children?.length || 0} Einträge</div>
-                        </div>
-                    `).join('')}
-                </div>`;
-        } else if (currentFolder && !currentFile) {
-            // Ordneransicht
-            const folder = findFolderByPath(currentFolder);
-            if (!folder) return (area.innerHTML = '<p>Ordner nicht gefunden.</p>');
-            const items = folder.children || [];
-            area.innerHTML = `
-                <h2 style="margin-bottom:20px;">📁 ${folder.name}</h2>
-                <div class="topic-grid">
-                    ${items.map(i => {
-                        if (i.type==='folder') return `<div class="topic-card" onclick="navFolder('${i.path}')"><div class="t-icon">📁</div><div class="t-name">${i.name}</div></div>`;
-                        const icon = i.name.match(/\.md$/i) ? '📄' : (i.name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i) ? '🖼️' : (i.name.match(/\.(mp4|webm|mov)$/i) ? '🎬' : '📥'));
-                        return `<div class="topic-card" onclick='navFile(${JSON.stringify(i)})'><div class="t-icon">${icon}</div><div class="t-name">${i.name.replace(/\.md$/,'')}</div></div>`;
-                    }).join('')}
-                </div>`;
-        } else if (currentFile) {
-            const file = currentFile;
-            if (file.name.match(/\.md$/i)) {
-                let md = sessionStorage.getItem('md:'+file.path);
-                if (!md) {
-                    const resp = await fetch(file.download_url);
-                    md = await resp.text();
-                    sessionStorage.setItem('md:'+file.path, md);
-                }
-                area.innerHTML = `<h2>📄 ${file.name.replace(/\.md$/,'')}</h2><div class="article-body">${marked.parse(md)}</div>`;
-            } else if (file.name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i)) {
-                area.innerHTML = `<h2>🖼️ ${file.name}</h2><img src="${file.download_url}" alt="${file.name}" style="max-width:100%; border-radius:var(--radius); margin-top:16px;">`;
-            } else if (file.name.match(/\.(mp4|webm|mov)$/i)) {
-                area.innerHTML = `<h2>🎬 ${file.name}</h2><video controls src="${file.download_url}" style="max-width:100%; border-radius:var(--radius); margin-top:16px;"></video>`;
-            } else {
-                area.innerHTML = `<h2>📥 ${file.name}</h2><a class="dl-btn" href="${file.download_url}" download>⬇️ Download</a>`;
-            }
-        }
-    }
-
-    function findFolderByPath(path) {
-        const search = (items) => {
-            for (const i of items) {
-                if (i.type==='folder' && i.path===path) return i;
-                if (i.children) { const f = search(i.children); if (f) return f; }
-            }
-            return null;
-        };
-        return search(tree.folders);
-    }
-
-    function toggleSidebar() {
-        const sb = document.getElementById('sidebar');
-        const ov = document.getElementById('overlay');
-        sb.classList.toggle('open');
-        ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
-    }
-    function closeSidebar() {
-        document.getElementById('sidebar').classList.remove('open');
-        document.getElementById('overlay').style.display = 'none';
-    }
-
-    marked.setOptions({ breaks:true, gfm:true, sanitize:false });
-    buildTree();
+  // ═══════ START ═══════
+  marked.setOptions({ breaks:true, gfm:true, sanitize:false });
+  init();
 </script>
 </body>
 </html>
