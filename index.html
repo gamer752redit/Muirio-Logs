@@ -137,7 +137,7 @@
     .doc-body .box-red h2, .doc-body .box-red h3 { color: #f87171; border-bottom-color: rgba(239, 68, 68, 0.2); }
     .doc-body .box-red strong { color: #fca5a5; }
 
-    /* ══════════ SHADER & EFFEKTE ══════════ */
+    /* ══════════ ALLE SHADER & EFFEKTE (VOLLSTÄNDIG) ══════════ */
     .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:sh-rainbow 3s linear infinite; font-weight:700; }
     @keyframes sh-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
     .sh-glow { text-shadow:0 0 8px #a084f0,0 0 20px #7c5af5; animation:sh-glow 2s infinite alternate; }
@@ -235,7 +235,7 @@
 
     let allFilesMap = new Map();
     let treeFolders = [];
-    let expanded = {}; // Standardmäßig eingeklappt
+    let expanded = {};
 
     // 1. Repository-Struktur rekursiv laden (Assets wie png, mp3, mp4, html werden für Sidebar ausgeblendet)
     async function fetchDir(path = '') {
@@ -253,7 +253,7 @@
             const fileObj = { type: 'file', name: i.name, path: i.path, download_url: i.download_url, ext };
             allFilesMap.set(i.path, fileObj);
             
-            // Nur .md Dateien in der Sidebar anzeigen; PNG, MP3, MP4, MOV, HTML etc. bleiben verborgen
+            // Nur .md Dateien in der Sidebar anzeigen
             if (ext === 'md') {
               out.push(fileObj);
             }
@@ -410,17 +410,14 @@
       return null;
     }
 
-    // 5. Markdown Unterseite Rendern mit Asset-Einbettung & Boxen
+    // 5. Markdown Unterseite Rendern mit Asset-Einbettung & Boxen – OHNE Session‑Cache
     async function renderFilePage(file) {
       if (file.ext === 'md') {
         preview.innerHTML = `<h2 style='color:var(--text-muted);'>Lade Unterseite...</h2>`;
         
-        let md = sessionStorage.getItem('md:' + file.path);
-        if (!md) {
-          const resp = await fetch(file.download_url);
-          md = await resp.text();
-          sessionStorage.setItem('md:' + file.path, md);
-        }
+        // Immer frisch von GitHub laden (Cache entfernt)
+        const resp = await fetch(file.download_url);
+        let md = await resp.text();
 
         // Verzeichnis des aktuellen Markdown-Files ermitteln
         const dirPath = file.path.includes('/') ? file.path.substring(0, file.path.lastIndexOf('/') + 1) : '';
@@ -453,7 +450,6 @@
 
             if (replacement) {
               const escapedName = assetName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-              // Ersetze Markdown Bild- & Link-Syntax oder Dateinamen-Referenzen
               md = md.replace(new RegExp(`!\\[([^\\]]*)\\]\\((?:\\./)?${escapedName}\\)`, 'g'), replacement);
               md = md.replace(new RegExp(`\\[([^\\]]*)\\]\\((?:\\./)?${escapedName}\\)`, 'g'), replacement);
               md = md.replace(new RegExp(`\\b${escapedName}\\b`, 'g'), replacement);
@@ -461,7 +457,7 @@
           }
         }
 
-        // Grüne und rote Boxen parsen (:::green ... ::: und :::red ... :::)
+        // Grüne und rote Boxen parsen
         md = md.replace(/:::green([\s\S]*?):::/g, '<div class="box-green">$1</div>');
         md = md.replace(/:::red([\s\S]*?):::/g, '<div class="box-red">$1</div>');
 
@@ -495,7 +491,7 @@
     async function loadHtmlAsset(url, containerId) {
       const container = document.getElementById(containerId);
       if (container.innerHTML.trim() !== '') {
-        container.innerHTML = ''; // Toggle / Einklappen
+        container.innerHTML = '';
         return;
       }
       container.innerHTML = '<p style="color:var(--text-muted);">Lade Quellcode...</p>';
