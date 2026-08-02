@@ -35,13 +35,13 @@ DIE TRENNUNG VON SPIEL UND REALITÄT (<span class="sh-fire">STRENGSTE REGEL</spa
 
 Um den Frieden und den Spaß für alle 100 Teilnehmer zu garantieren, gilt eine absolute Brandmauer zwischen der virtuellen Welt (Ingame) und dem echten Leben (IRL):
 ## 
-## A) Keine IRL-Einflüsse auf das Spiel:
+## D) Keine IRL-Einflüsse auf das Spiel:
 
 Es ist untersagt, private oder reale Informationen (Doxxing, reale Adressen, Telefonnummern, Schule, Arbeit, persönliche Beziehungen) in das Spiel zu tragen oder als Druckmittel zu nutzen.
 
 Reale Konflikte außerhalb von Minecraft dürfen niemals als Grund für ingame-Handlungen oder Mobbing im Projekt genutzt werden.
 
-## B) Keine Ingame-Einflüsse auf das IRL:
+## E) Keine Ingame-Einflüsse auf das IRL:
 
 Ingame-Geschehnisse (z.B. Verrat, Basis-Zerstörung, der Verlust von tageatelanger Arbeit oder militärische Niederlagen) müssen im Spiel bleiben.
 
