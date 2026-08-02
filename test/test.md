@@ -1,9 +1,8 @@
-Hallo, 
-<span class="sh-rainbow">Das ist krass</span>
+# Dokumentation erstellen
+Schreibe hier deinen Markdown-Code. Nutze die obere Toolbar für schnelles Formatieren!
 
-<span class="sh-typewriter">oder nicht? </span>
+> ⚠️ Dies ist eine Info-Box im Stil von <span class="sh-void">CastCrafter</span>.
 
-<span class="sh-shade">YAY</span>
+Nutze coole Shader wie <span class="sh-cyberpunk">Cyberpunk</span> oder <span class="sh-rainbow">Rainbow</span>.
 
-
-<span class="sh-glitch"><span class="sh-glow"><span class="sh-rainbow"><span class="sh-3d">YAY</span></span></span></span>
+[YAY](muirio.netlify.app)
