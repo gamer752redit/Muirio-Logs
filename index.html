@@ -112,6 +112,31 @@
     .doc-body pre code { background: none; padding: 0; color: var(--text-main); }
     .doc-body img { max-width: 100%; border-radius: 10px; margin: 1em 0; border: 1px solid var(--border); }
 
+    /* ── GREEN & RED COMPONENT BOXES ── */
+    .doc-body .box-green {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-left: 4px solid #10b981;
+      padding: 22px;
+      border-radius: 0 10px 10px 0;
+      margin: 1.8em 0;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+    }
+    .doc-body .box-green h2, .doc-body .box-green h3 { color: #34d399; border-bottom-color: rgba(16, 185, 129, 0.2); }
+    .doc-body .box-green strong { color: #6ee7b7; }
+
+    .doc-body .box-red {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-left: 4px solid #ef4444;
+      padding: 22px;
+      border-radius: 0 10px 10px 0;
+      margin: 1.8em 0;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
+    }
+    .doc-body .box-red h2, .doc-body .box-red h3 { color: #f87171; border-bottom-color: rgba(239, 68, 68, 0.2); }
+    .doc-body .box-red strong { color: #fca5a5; }
+
     /* ══════════ SHADER & EFFEKTE ══════════ */
     .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:sh-rainbow 3s linear infinite; font-weight:700; }
     @keyframes sh-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
@@ -210,9 +235,9 @@
 
     let allFilesMap = new Map();
     let treeFolders = [];
-    let expanded = {}; // Standardmäßig leer -> Alle Ordner eingeklappt
+    let expanded = {}; // Standardmäßig eingeklappt
 
-    // 1. Repository-Struktur rekursiv laden (Nur Ordner & Unterordner-Dateien)
+    // 1. Repository-Struktur rekursiv laden (Assets wie png, mp3, mp4, html werden für Sidebar ausgeblendet)
     async function fetchDir(path = '') {
       try {
         const resp = await fetch(`${API}/${path}`);
@@ -223,11 +248,15 @@
           if (i.type === 'dir') {
             const children = await fetchDir(i.path);
             out.push({ type: 'folder', name: i.name, path: i.path, children });
-          } else if (path !== '') { 
-            // Ignoriere Root-Dokumente, erfasse nur Dateien in Ordnern
-            const fileObj = { type: 'file', name: i.name, path: i.path, download_url: i.download_url };
+          } else if (path !== '') {
+            const ext = i.name.split('.').pop().toLowerCase();
+            const fileObj = { type: 'file', name: i.name, path: i.path, download_url: i.download_url, ext };
             allFilesMap.set(i.path, fileObj);
-            out.push(fileObj);
+            
+            // Nur .md Dateien in der Sidebar anzeigen; PNG, MP3, MP4, MOV, HTML etc. bleiben verborgen
+            if (ext === 'md') {
+              out.push(fileObj);
+            }
           }
         }
         return out;
@@ -243,7 +272,7 @@
       handleRoute();
     }
 
-    // 2. Sidebar Zeichnen (Alle Ordner standardmäßig eingeklappt)
+    // 2. Sidebar Zeichnen
     function renderSidebar() {
       const nav = document.getElementById('treeNav');
       let html = '';
@@ -251,7 +280,6 @@
       function walk(items, depth = 0) {
         for (const item of items) {
           if (item.type === 'folder') {
-            // Standardmäßig eingeklappt (expanded[path] ist true nur wenn explizit geöffnet)
             const open = expanded[item.path] === true;
             html += `
               <div class="tree-row" style="padding-left:${10 + depth * 14}px" onclick="event.stopPropagation(); toggleFolder('${item.path}')">
@@ -261,7 +289,7 @@
             `;
             if (item.children) walk(item.children, depth + 1);
             html += `</div>`;
-          } else {
+          } else if (item.ext === 'md') {
             const isCurrent = window.location.hash.slice(1) === item.path;
             const isActive = isCurrent ? 'active' : '';
             html += `
@@ -354,7 +382,7 @@
       let count = 0;
       if (folder.children) {
         for (const c of folder.children) {
-          if (c.type === 'file') count++;
+          if (c.type === 'file' && c.ext === 'md') count++;
           if (c.type === 'folder') count += countFilesInFolder(c);
         }
       }
@@ -372,7 +400,7 @@
     }
 
     function findFirstFile(item) {
-      if (item.type === 'file') return item;
+      if (item.type === 'file' && item.ext === 'md') return item;
       if (item.children) {
         for (const child of item.children) {
           const found = findFirstFile(child);
@@ -382,9 +410,9 @@
       return null;
     }
 
-    // 5. Markdown Unterseite Rendern
+    // 5. Markdown Unterseite Rendern mit Asset-Einbettung & Boxen
     async function renderFilePage(file) {
-      if (/\.md$/i.test(file.name)) {
+      if (file.ext === 'md') {
         preview.innerHTML = `<h2 style='color:var(--text-muted);'>Lade Unterseite...</h2>`;
         
         let md = sessionStorage.getItem('md:' + file.path);
@@ -393,6 +421,49 @@
           md = await resp.text();
           sessionStorage.setItem('md:' + file.path, md);
         }
+
+        // Verzeichnis des aktuellen Markdown-Files ermitteln
+        const dirPath = file.path.includes('/') ? file.path.substring(0, file.path.lastIndexOf('/') + 1) : '';
+
+        // Automatische Ersetzung lokaler Assets im selben Ordner
+        for (let [path, asset] of allFilesMap.entries()) {
+          if (path.startsWith(dirPath) && path !== file.path && !path.substring(dirPath.length).includes('/')) {
+            const assetName = asset.name;
+            const assetExt = asset.ext;
+            let replacement = '';
+
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(assetExt)) {
+              replacement = `<img src="${asset.download_url}" alt="${assetName}" style="max-width:100%; border-radius:10px; margin:1.2em 0; border:1px solid var(--border);">`;
+            } else if (['mp4', 'mov', 'webm'].includes(assetExt)) {
+              replacement = `<video controls style="width:100%; border-radius:10px; margin:1.2em 0; border:1px solid var(--border);"><source src="${asset.download_url}"></video>`;
+            } else if (['mp3', 'wav', 'ogg'].includes(assetExt)) {
+              replacement = `<audio controls style="width:100%; margin:1.2em 0;"><source src="${asset.download_url}"></audio>`;
+            } else if (assetExt === 'html') {
+              const safeId = 'html_' + asset.path.replace(/[^a-zA-Z0-9]/g, '_');
+              replacement = `
+                <details style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; margin:1.5em 0; padding:14px 18px;">
+                  <summary style="cursor:pointer; color:var(--accent); font-weight:600; outline:none;">🌐 HTML Komponente: ${assetName} (Klicken zum Öffnen)</summary>
+                  <div style="margin-top:14px;">
+                    <button class="back-btn" onclick="loadHtmlAsset('${asset.download_url}', '${safeId}')">Quellcode laden & anzeigen</button>
+                    <div id="${safeId}" style="margin-top:12px;"></div>
+                  </div>
+                </details>
+              `;
+            }
+
+            if (replacement) {
+              const escapedName = assetName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+              // Ersetze Markdown Bild- & Link-Syntax oder Dateinamen-Referenzen
+              md = md.replace(new RegExp(`!\\[([^\\]]*)\\]\\((?:\\./)?${escapedName}\\)`, 'g'), replacement);
+              md = md.replace(new RegExp(`\\[([^\\]]*)\\]\\((?:\\./)?${escapedName}\\)`, 'g'), replacement);
+              md = md.replace(new RegExp(`\\b${escapedName}\\b`, 'g'), replacement);
+            }
+          }
+        }
+
+        // Grüne und rote Boxen parsen (:::green ... ::: und :::red ... :::)
+        md = md.replace(/:::green([\s\S]*?):::/g, '<div class="box-green">$1</div>');
+        md = md.replace(/:::red([\s\S]*?):::/g, '<div class="box-red">$1</div>');
 
         const pathParts = file.path.split('/');
         const breadcrumbName = file.name.replace(/\.md$/, '');
@@ -420,6 +491,32 @@
       }
     }
 
+    // HTML Asset dynamisch laden
+    async function loadHtmlAsset(url, containerId) {
+      const container = document.getElementById(containerId);
+      if (container.innerHTML.trim() !== '') {
+        container.innerHTML = ''; // Toggle / Einklappen
+        return;
+      }
+      container.innerHTML = '<p style="color:var(--text-muted);">Lade Quellcode...</p>';
+      try {
+        const res = await fetch(url);
+        const htmlText = await res.text();
+        container.innerHTML = `
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">Live-Vorschau:</div>
+          <iframe src="${url}" style="width:100%; height:280px; border:1px solid var(--border); border-radius:8px; background:#fff; margin-bottom:14px;"></iframe>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">Quellcode:</div>
+          <pre style="background:#07090f; padding:14px; border-radius:8px; overflow-x:auto; max-height:220px; border:1px solid var(--border);"><code style="color:#cbd5e1; font-size:0.8rem;">${escapeHtml(htmlText)}</code></pre>
+        `;
+      } catch(e) {
+        container.innerHTML = '<p style="color:#ef4444;">Fehler beim Laden der HTML-Datei.</p>';
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
     // Live-Suche
     function handleSearch(query) {
       const q = query.toLowerCase();
@@ -432,7 +529,7 @@
       let foundCount = 0;
       
       for (const [path, file] of allFilesMap.entries()) {
-        if (file.name.toLowerCase().includes(q)) {
+        if (file.ext === 'md' && file.name.toLowerCase().includes(q)) {
           foundCount++;
           resultsHtml += `
             <div class="folder-card" onclick="navigateTo('${file.path}')">
