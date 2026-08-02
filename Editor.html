@@ -2,124 +2,281 @@
 <html lang="de" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <title>✍️ Editor · Muirio Logs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muirio Editor</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
+    /* ════════════════ DESIGN SYSTEM ════════════════ */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
     :root {
-      --bg:#0b0714; --bg2:#110a1f; --bg3:#1a1030;
-      --border:#2a1f45; --text:#d4cce0; --accent:#7c5af5; --accent2:#a084f0;
-      --radius:6px;
+      --bg-main: #141416;
+      --bg-editor: #1e1e1e;
+      --bg-topbar: #0f0f11;
+      --bg-toolbar: #252526;
+      --border: #2a2a2d;
+      --text-main: #d1d5db;
+      --text-heading: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #2ea043;
+      
+      --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+      --topbar-h: 56px;
     }
-    body { margin:0; font-family:system-ui, sans-serif; background:var(--bg); color:var(--text); display:flex; height:100vh; }
-    .pane { flex:1; padding:16px; display:flex; flex-direction:column; }
-    .pane.editor { border-right:1px solid var(--border); }
-    textarea {
-      flex:1; background:var(--bg2); color:var(--text);
-      border:1px solid var(--border); border-radius:var(--radius);
-      padding:14px; font-family:'JetBrains Mono',monospace; font-size:0.9rem; resize:none;
-    }
-    .preview-box {
-      flex:1; background:var(--bg2); border:1px solid var(--border);
-      border-radius:var(--radius); padding:18px; overflow-y:auto;
-      line-height:1.8;
-    }
-    .toolbar { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
-    select, button {
-      background:var(--bg3); color:var(--text); border:1px solid var(--border);
-      padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;
-    }
-    button:hover, select:hover { border-color:var(--accent); }
 
-    /* Alle Shader aus index.html hier wiederholen (gekürzt dargestellt) */
-    .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-rainbow 3s linear infinite; font-weight:700; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height: 100vh; font-family: var(--font-ui); background: var(--bg-main); color: var(--text-main); overflow: hidden; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #424242; border: 2px solid var(--bg-editor); border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4f4f4f; }
+
+    /* ── TOPBAR ── */
+    #topbar {
+      height: var(--topbar-h);
+      background: var(--bg-topbar);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--accent); }
+    .brand-logo { width: 32px; height: 32px; background: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #000; font-weight: bold; }
+
+    /* ── WORKSPACE ── */
+    #workspace { display: flex; height: calc(100vh - var(--topbar-h)); }
+    .pane { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+    
+    /* ── EDITOR & TOOLBAR ── */
+    .editor-pane { background: var(--bg-editor); }
+    .toolbar { background: var(--bg-toolbar); border-bottom: 1px solid var(--border); padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .toolbar-group { display: flex; gap: 4px; border-right: 1px solid #444; padding-right: 12px; }
+    .toolbar-group:last-child { border-right: none; }
+    
+    .toolbar button, .toolbar select {
+      background: #3c3c3c; color: #ccc; border: 1px solid #3c3c3c; padding: 6px 10px;
+      border-radius: 4px; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+    }
+    .toolbar button:hover, .toolbar select:hover { background: #4a4a4a; color: #fff; border-color: #555; }
+    .toolbar button.icon-btn { font-weight: bold; width: 32px; padding: 6px 0; text-align: center; }
+
+    #editor {
+      flex: 1; background: var(--bg-editor); color: #d4d4d4; border: none; padding: 20px;
+      font-family: var(--font-mono); font-size: 14px; line-height: 1.6; resize: none; outline: none;
+    }
+
+    /* ── PREVIEW PANE ── */
+    .preview-pane { background: var(--bg-main); padding: 40px 60px; overflow-y: auto; }
+    .doc-content h1 { font-size: 2.2rem; color: var(--text-heading); margin-bottom: 0.5em; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .doc-content h2 { font-size: 1.5rem; color: var(--text-heading); margin-top: 1.5em; margin-bottom: 0.8em; }
+    .doc-content h3 { font-size: 1.2rem; color: var(--text-heading); margin-top: 1.2em; margin-bottom: 0.5em; }
+    .doc-content p, .doc-content li { line-height: 1.7; margin-bottom: 1em; color: #a1a1aa; }
+    .doc-content ul, .doc-content ol { margin-bottom: 1em; padding-left: 20px; }
+    .doc-content a { color: var(--accent); text-decoration: none; }
+    
+    .doc-content blockquote {
+      background: #2a2512; border: 1px solid #4a4220; border-left: 4px solid #eab308;
+      padding: 16px 20px; border-radius: 6px; margin: 1.5em 0;
+    }
+    .doc-content blockquote p { margin: 0; color: #e5e7eb; }
+    .doc-content pre { background: #000; padding: 16px; border-radius: 6px; overflow-x: auto; margin-bottom: 1em; border: 1px solid var(--border); }
+    .doc-content code { font-family: var(--font-mono); font-size: 0.85em; background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px; }
+    .doc-content pre code { background: none; padding: 0; }
+
+    /* ══════════ SHADER EFFEKTE ══════════ */
+    .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:sh-rainbow 3s linear infinite; font-weight:700; }
     @keyframes sh-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
-    /* (Kopiere alle weiteren Shader-Klassen aus index.html hier hinein) */
+    .sh-glow { text-shadow:0 0 8px #a084f0,0 0 20px #7c5af5; animation:sh-glow 2s infinite alternate; }
+    @keyframes sh-glow { from{text-shadow:0 0 8px #a084f0} to{text-shadow:0 0 20px #fff,0 0 35px #a084f0} }
+    .sh-neon { text-shadow:0 0 5px #fff,0 0 15px #0ff,0 0 30px #0ff; animation:sh-neon 1.5s infinite alternate; }
+    @keyframes sh-neon { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:0.4} }
+    .sh-fire { color:#ff6a00; text-shadow:0 0 8px #ff4500,0 0 20px #ff6347; animation:sh-fire 0.8s infinite alternate; }
+    @keyframes sh-fire { from{text-shadow:0 0 8px #ff4500} to{text-shadow:0 0 15px #ffa500,0 0 35px #ff4500} }
+    .sh-ice { color:#a0d8ef; text-shadow:0 0 8px #87ceeb; animation:sh-ice 2s ease-in-out infinite; }
+    @keyframes sh-ice { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.4)} }
+    .sh-shadow { text-shadow:3px 3px 0 rgba(0,0,0,0.4),6px 6px 0 rgba(139,92,246,0.2); }
+    .sh-outline { -webkit-text-stroke:1px #7c5af5; color:transparent; }
+    .sh-gradient-bg { background:linear-gradient(135deg,#8b5cf6,#ec4899); padding:2px 8px; border-radius:4px; color:#fff; font-weight:600; }
+    .sh-warn { background:rgba(239,68,68,0.18); border:2px solid #ef4444; border-radius:6px; padding:4px 8px; color:#fca5a5; font-weight:600; box-shadow:0 0 15px rgba(239,68,68,0.3); animation:sh-warn 1.5s infinite; }
+    @keyframes sh-warn { 0%,100%{box-shadow:0 0 15px rgba(239,68,68,0.3)} 50%{box-shadow:0 0 30px rgba(239,68,68,0.6)} }
+    .sh-spin { display:inline-block; animation:sh-spin 2s linear infinite; }
+    @keyframes sh-spin { to{transform:rotate(360deg)} }
+    .sh-bounce { display:inline-block; animation:sh-bounce 0.6s ease-in-out infinite alternate; }
+    @keyframes sh-bounce { from{transform:translateY(0)} to{transform:translateY(-8px)} }
+    .sh-wave { display:inline-block; animation:sh-wave 1.5s ease-in-out infinite; }
+    @keyframes sh-wave { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-5px)} 75%{transform:translateY(3px)} }
+    .sh-glitch { position:relative; animation:sh-glitch 0.3s infinite; display:inline-block; }
+    @keyframes sh-glitch { 0%,100%{transform:translate(0)} 20%{transform:translate(-2px,2px)} 40%{transform:translate(2px,-2px)} 60%{transform:translate(-1px,-1px)} 80%{transform:translate(1px,1px)} }
+    .sh-sparkle { background:linear-gradient(90deg,#ffd700,#fff8dc,#ffd700); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:sh-sparkle 2s linear infinite; }
+    @keyframes sh-sparkle { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+    .sh-holo { background:linear-gradient(135deg,#ff0080,#ff8c00,#40e0d0,#ff0080); background-size:300% 300%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:sh-holo 4s ease infinite; }
+    @keyframes sh-holo { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    .sh-matrix { color:#0f0; text-shadow:0 0 8px #0f0; font-family:monospace; }
+    .sh-void { background:#fff; color:#000; padding:2px 6px; border-radius:3px; font-weight:700; }
+    .sh-underline-glow { border-bottom:2px solid #7c5af5; box-shadow:0 2px 12px rgba(139,92,246,0.3); }
+    .sh-strike-glow { text-decoration:line-through; text-decoration-color:#7c5af5; text-decoration-thickness:2px; text-shadow:0 0 8px #7c5af5; }
+    .sh-double-line { border-top:2px solid #a084f0; border-bottom:2px solid #a084f0; padding:4px 0; display:inline-block; }
+    .sh-zoom { display:inline-block; animation:sh-zoom 2s ease-in-out infinite; }
+    @keyframes sh-zoom { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+    .sh-pulse { animation:sh-pulse 1s ease-in-out infinite; }
+    @keyframes sh-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+    .sh-flicker { animation:sh-flicker 0.1s infinite alternate; }
+    @keyframes sh-flicker { from{opacity:1} to{opacity:0.7} }
+    .sh-reveal { position:relative; overflow:hidden; display:inline-block; }
+    .sh-reveal::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:#7c5af5; animation:sh-reveal 2s forwards; }
+    @keyframes sh-reveal { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
+    .sh-blur { filter:blur(2px); transition:filter 0.3s; }
+    .sh-blur:hover { filter:blur(0); }
+    .sh-metal { background:linear-gradient(180deg,#ddd,#999,#ddd); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:700; }
+    .sh-emboss { text-shadow:1px 1px 0 rgba(255,255,255,0.2), -1px -1px 0 rgba(0,0,0,0.8); color:#aaa; }
+    .sh-spotlight { background:radial-gradient(circle, #a084f0 0%, transparent 70%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .sh-shade { text-shadow:2px 2px 4px rgba(0,0,0,0.8), -1px -1px 2px rgba(255,255,255,0.1); }
+    .sh-3d { text-shadow:1px 1px 0 #444, 2px 2px 0 #333, 3px 3px 0 #222; color:#fff; }
+    .sh-vaporwave { color:#ff71ce; text-shadow:0 0 10px #01cdfe, 0 0 20px #05ffa1; font-style:italic; }
+    .sh-cyberpunk { color:#f0e68c; text-shadow:0 0 8px #ff00ff, 0 0 18px #00ffff; letter-spacing:2px; }
+    .sh-gold { background:linear-gradient(180deg,#bf953f,#fcf6ba,#b38728,#fbf5b7,#aa771c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .sh-stripes { background:repeating-linear-gradient(45deg, #a084f0, #a084f0 2px, transparent 2px, transparent 6px); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .sh-rotate { display:inline-block; animation:sh-rotate 3s linear infinite; }
+    @keyframes sh-rotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    .sh-scramble:hover { animation:sh-scramble 0.2s steps(1) infinite; display:inline-block;}
+    @keyframes sh-scramble { 0%{transform:translate(0)} 25%{transform:translate(-2px,1px)} 50%{transform:translate(2px,-1px)} 75%{transform:translate(-1px,-1px)} 100%{transform:translate(1px,1px)} }
   </style>
 </head>
 <body>
-<div class="pane editor">
-  <div class="toolbar">
-    <select id="shaderSelect">
-      <option value="">🎨 Shader auswählen...</option>
-      <option value="sh-rainbow">🌈 Rainbow</option>
-      <option value="sh-glow">✨ Glow</option>
-      <option value="sh-neon">💡 Neon</option>
-      <option value="sh-fire">🔥 Fire</option>
-      <option value="sh-ice">❄️ Ice</option>
-      <option value="sh-shadow">👤 Shadow</option>
-      <option value="sh-outline">🖊️ Outline</option>
-      <option value="sh-gradient-bg">🎨 Gradient BG</option>
-      <option value="sh-warn">⚠️ Warnung</option>
-      <option value="sh-spin">🔄 Spin</option>
-      <option value="sh-bounce">⬆️ Bounce</option>
-      <option value="sh-wave">🌊 Wave</option>
-      <option value="sh-glitch">🤖 Glitch</option>
-      <option value="sh-sparkle">✨ Sparkle</option>
-      <option value="sh-holo">💿 Holo</option>
-      <option value="sh-matrix">🟢 Matrix</option>
-      <option value="sh-void">⬛ Void</option>
-      <option value="sh-underline-glow">🔗 Underline Glow</option>
-      <option value="sh-strike-glow">❌ Strike Glow</option>
-      <option value="sh-double-line">⏸️ Double Line</option>
-      <option value="sh-zoom">🔍 Zoom</option>
-      <option value="sh-pulse">💓 Pulse</option>
-      <option value="sh-flicker">📺 Flicker</option>
-      <option value="sh-reveal">👁️ Reveal</option>
-      <option value="sh-blur">🌫️ Blur (hover)</option>
-      <option value="sh-metal">🪙 Metal</option>
-      <option value="sh-emboss">🪨 Emboss</option>
-      <option value="sh-spotlight">🔦 Spotlight</option>
-      <option value="sh-typewriter">⌨️ Typewriter</option>
-      <option value="sh-shade">🌑 Shade</option>
-      <option value="sh-3d">🧊 3D Pop</option>
-      <option value="sh-vaporwave">🌴 Vaporwave</option>
-      <option value="sh-cyberpunk">🤖 Cyberpunk</option>
-      <option value="sh-gold">🥇 Gold</option>
-      <option value="sh-stripes">🦓 Stripes</option>
-      <option value="sh-rotate">🔄 Rotate</option>
-      <option value="sh-scramble">🔀 Scramble</option>
-    </select>
-    <button onclick="applyShader()">Anwenden</button>
-    <button onclick="copyMD()">📋 Kopieren</button>
-  </div>
-  <textarea id="editor" placeholder="Schreibe Markdown... Markiere Text für Shader.">
-# ✨ Willkommen im Editor
 
-Das ist **fett**, *kursiv* und <span class="sh-rainbow">Regenbogen</span>.
+  <header id="topbar">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      MUIRIO.DE | Editor
+    </div>
+  </header>
 
-> ⚠️ <span class="sh-warn">Wichtige Warnung!</span>
-  </textarea>
-</div>
-<div class="pane">
-  <h3 style="margin:0 0 10px;">📄 Vorschau</h3>
-  <div class="preview-box" id="preview"></div>
-</div>
+  <main id="workspace">
+    
+    <!-- EDITOR -->
+    <div class="pane editor-pane">
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button class="icon-btn" onclick="insertFormat('**', '**')" title="Fett"><b>B</b></button>
+          <button class="icon-btn" onclick="insertFormat('*', '*')" title="Kursiv"><i>I</i></button>
+          <button class="icon-btn" onclick="insertFormat('~~', '~~')" title="Durchgestrichen"><s>S</s></button>
+          <button class="icon-btn" onclick="insertFormat('`', '`')" title="Code"><code>&lt;&gt;</code></button>
+        </div>
+        <div class="toolbar-group">
+          <button class="icon-btn" onclick="insertFormat('# ', '')" title="Überschrift 1">H1</button>
+          <button class="icon-btn" onclick="insertFormat('## ', '')" title="Überschrift 2">H2</button>
+          <button class="icon-btn" onclick="insertFormat('> ', '')" title="Zitat">❝</button>
+          <button class="icon-btn" onclick="insertFormat('- ', '')" title="Liste">📋</button>
+          <button class="icon-btn" onclick="insertFormat('[', '](url)')" title="Link">🔗</button>
+        </div>
+        <div class="toolbar-group">
+          <select id="shaderSelect">
+            <option value="">🎨 Shader wählen...</option>
+            <optgroup label="Farben & Glow">
+              <option value="sh-rainbow">🌈 Rainbow</option>
+              <option value="sh-glow">✨ Glow</option>
+              <option value="sh-neon">💡 Neon</option>
+              <option value="sh-fire">🔥 Fire</option>
+              <option value="sh-ice">❄️ Ice</option>
+              <option value="sh-gradient-bg">🎨 Gradient BG</option>
+              <option value="sh-sparkle">✨ Sparkle</option>
+              <option value="sh-holo">💿 Holo</option>
+              <option value="sh-gold">🥇 Gold</option>
+            </optgroup>
+            <optgroup label="Schatten & 3D">
+              <option value="sh-shadow">👤 Shadow</option>
+              <option value="sh-outline">🖊️ Outline</option>
+              <option value="sh-shade">🌑 Shade</option>
+              <option value="sh-3d">🧊 3D Pop</option>
+              <option value="sh-emboss">🪨 Emboss</option>
+            </optgroup>
+            <optgroup label="Animationen">
+              <option value="sh-spin">🔄 Spin</option>
+              <option value="sh-bounce">⬆️ Bounce</option>
+              <option value="sh-wave">🌊 Wave</option>
+              <option value="sh-glitch">🤖 Glitch</option>
+              <option value="sh-zoom">🔍 Zoom</option>
+              <option value="sh-pulse">💓 Pulse</option>
+              <option value="sh-flicker">📺 Flicker</option>
+              <option value="sh-reveal">👁️ Reveal</option>
+              <option value="sh-rotate">🔄 Rotate</option>
+              <option value="sh-scramble">🔀 Scramble</option>
+            </optgroup>
+            <optgroup label="Styling & Text">
+              <option value="sh-warn">⚠️ Warnung Box</option>
+              <option value="sh-matrix">🟢 Matrix</option>
+              <option value="sh-void">⬛ Void</option>
+              <option value="sh-underline-glow">🔗 Underline</option>
+              <option value="sh-strike-glow">❌ Strike Glow</option>
+              <option value="sh-double-line">⏸️ Double Line</option>
+              <option value="sh-blur">🌫️ Blur (Hover)</option>
+              <option value="sh-metal">🪙 Metal</option>
+              <option value="sh-vaporwave">🌴 Vaporwave</option>
+              <option value="sh-cyberpunk">🤖 Cyberpunk</option>
+              <option value="sh-stripes">🦓 Stripes</option>
+            </optgroup>
+          </select>
+          <button onclick="applyShader()">Anwenden</button>
+        </div>
+        <div class="toolbar-group">
+          <button onclick="copyMD()" style="background: var(--accent); color: white; border: none;">📋 MD Kopieren</button>
+        </div>
+      </div>
+      <textarea id="editor" spellcheck="false"># Dokumentation erstellen
+Schreibe hier deinen Markdown-Code. Nutze die obere Toolbar für schnelles Formatieren!
 
-<script>
-  const editor = document.getElementById('editor');
-  const preview = document.getElementById('preview');
-  const shaderSelect = document.getElementById('shaderSelect');
+> ⚠️ Dies ist eine Info-Box im Stil von CastCrafter.
 
-  marked.setOptions({ breaks:true, gfm:true, sanitize:false });
+Nutze coole Shader wie <span class="sh-cyberpunk">Cyberpunk</span> oder <span class="sh-rainbow">Rainbow</span>.</textarea>
+    </div>
 
-  function updatePreview() { preview.innerHTML = marked.parse(editor.value); }
-  editor.addEventListener('input', updatePreview);
-  updatePreview();
+    <!-- PREVIEW -->
+    <div class="pane preview-pane">
+      <div class="doc-content" id="preview"></div>
+    </div>
 
-  function applyShader() {
-    const shader = shaderSelect.value;
-    if (!shader) return alert('Shader auswählen.');
-    const start = editor.selectionStart, end = editor.selectionEnd;
-    if (start === end) return alert('Text markieren.');
-    const selected = editor.value.substring(start, end);
-    const wrapped = `<span class="${shader}">${selected}</span>`;
-    editor.setRangeText(wrapped, start, end, 'select');
-    editor.focus();
+  </main>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const shaderSelect = document.getElementById('shaderSelect');
+
+    marked.setOptions({ breaks:true, gfm:true, sanitize:false });
+
+    function updatePreview() {
+      preview.innerHTML = marked.parse(editor.value);
+    }
+    editor.addEventListener('input', updatePreview);
     updatePreview();
-  }
-  function copyMD() {
-    navigator.clipboard.writeText(editor.value).then(() => alert('✅ Kopiert!'));
-  }
-</script>
+
+    function insertFormat(prefix, suffix = '') {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const selectedText = editor.value.substring(start, end);
+      const wrappedText = `${prefix}${selectedText}${suffix}`;
+      editor.setRangeText(wrappedText, start, end, 'select');
+      editor.focus();
+      updatePreview();
+    }
+
+    function applyShader() {
+      const shader = shaderSelect.value;
+      if (!shader) return alert('Bitte wähle einen Shader aus.');
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      if (start === end) return alert('Bitte markiere zuerst einen Text.');
+      const selectedText = editor.value.substring(start, end);
+      const wrappedText = `<span class="${shader}">${selectedText}</span>`;
+      editor.setRangeText(wrappedText, start, end, 'select');
+      editor.focus();
+      updatePreview();
+    }
+
+    function copyMD() {
+      navigator.clipboard.writeText(editor.value).then(() => alert('✅ Kopiert! Füge dies in deine Markdown-Datei ein.'));
+    }
+  </script>
 </body>
 </html>
