@@ -1,116 +1,125 @@
 <!DOCTYPE html>
 <html lang="de" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <title>✍️ Editor · Shader & Markdown</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        :root {
-            --bg:#0a0514; --bg2:#110b1f; --bg3:#1c1330;
-            --border:#2a1f45; --text:#e1daf0; --accent:#8b5cf6; --accent2:#a78bfa;
-        }
-        body { margin:0; font-family:'Segoe UI',sans-serif; background:var(--bg); color:var(--text); display:flex; height:100vh; }
-        .pane { flex:1; padding:16px; display:flex; flex-direction:column; }
-        .pane.editor { border-right:1px solid var(--border); }
-        textarea {
-            flex:1; background:var(--bg2); color:var(--text);
-            border:1px solid var(--border); border-radius:8px; padding:14px;
-            font-family:'JetBrains Mono',monospace; font-size:0.9rem; resize:none;
-        }
-        .preview-box {
-            flex:1; background:var(--bg2); border:1px solid var(--border);
-            border-radius:8px; padding:18px; overflow-y:auto;
-            line-height:1.8;
-        }
-        .toolbar { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
-        select, button {
-            background:var(--bg3); color:var(--text); border:1px solid var(--border);
-            padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem;
-        }
-        button:hover, select:hover { border-color:var(--accent); }
-        /* Shader-Klassen identisch zur index.html (hier gekürzt, aber alle enthalten) */
-        .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-rainbow 3s linear infinite; font-weight:700; }
-        @keyframes sh-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
-        /* (Alle weiteren Shader aus index.html hier einfügen) */
-    </style>
+  <meta charset="UTF-8">
+  <title>✍️ Editor · Muirio Logs</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg:#0b0714; --bg2:#110a1f; --bg3:#1a1030;
+      --border:#2a1f45; --text:#d4cce0; --accent:#7c5af5; --accent2:#a084f0;
+      --radius:6px;
+    }
+    body { margin:0; font-family:system-ui, sans-serif; background:var(--bg); color:var(--text); display:flex; height:100vh; }
+    .pane { flex:1; padding:16px; display:flex; flex-direction:column; }
+    .pane.editor { border-right:1px solid var(--border); }
+    textarea {
+      flex:1; background:var(--bg2); color:var(--text);
+      border:1px solid var(--border); border-radius:var(--radius);
+      padding:14px; font-family:'JetBrains Mono',monospace; font-size:0.9rem; resize:none;
+    }
+    .preview-box {
+      flex:1; background:var(--bg2); border:1px solid var(--border);
+      border-radius:var(--radius); padding:18px; overflow-y:auto;
+      line-height:1.8;
+    }
+    .toolbar { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    select, button {
+      background:var(--bg3); color:var(--text); border:1px solid var(--border);
+      padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;
+    }
+    button:hover, select:hover { border-color:var(--accent); }
+
+    /* Alle Shader aus index.html hier wiederholen (gekürzt dargestellt) */
+    .sh-rainbow { background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:sh-rainbow 3s linear infinite; font-weight:700; }
+    @keyframes sh-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+    /* (Kopiere alle weiteren Shader-Klassen aus index.html hier hinein) */
+  </style>
 </head>
 <body>
 <div class="pane editor">
-    <div class="toolbar">
-        <select id="shaderSelect">
-            <option value="">🎨 Shader wählen...</option>
-            <option value="sh-rainbow">🌈 Rainbow</option>
-            <option value="sh-glow">✨ Glow</option>
-            <option value="sh-neon">💡 Neon</option>
-            <option value="sh-fire">🔥 Fire</option>
-            <option value="sh-ice">❄️ Ice</option>
-            <option value="sh-shadow">👤 Shadow</option>
-            <option value="sh-outline">🖊️ Outline</option>
-            <option value="sh-gradient-bg">🎨 Gradient BG</option>
-            <option value="sh-warn">⚠️ Warnung</option>
-            <option value="sh-spin">🔄 Spin</option>
-            <option value="sh-bounce">⬆️ Bounce</option>
-            <option value="sh-wave">🌊 Wave</option>
-            <option value="sh-glitch">🤖 Glitch</option>
-            <option value="sh-sparkle">✨ Sparkle</option>
-            <option value="sh-holo">💿 Holo</option>
-            <option value="sh-matrix">🟢 Matrix</option>
-            <option value="sh-void">⬛ Void</option>
-            <option value="sh-underline-glow">🔗 Underline Glow</option>
-            <option value="sh-strike-glow">❌ Strike Glow</option>
-            <option value="sh-double-line">⏸️ Double Line</option>
-            <option value="sh-zoom">🔍 Zoom</option>
-            <option value="sh-pulse">💓 Pulse</option>
-            <option value="sh-flicker">📺 Flicker</option>
-            <option value="sh-reveal">👁️ Reveal</option>
-            <option value="sh-blur">🌫️ Blur (hover)</option>
-            <option value="sh-metal">🪙 Metal</option>
-            <option value="sh-emboss">🪨 Emboss</option>
-            <option value="sh-spotlight">🔦 Spotlight</option>
-            <option value="sh-typewriter">⌨️ Typewriter</option>
-            <option value="sh-shade">🌑 Shade</option>
-        </select>
-        <button onclick="applyShader()">Anwenden</button>
-        <button onclick="copyMD()">📋 Kopieren</button>
-    </div>
-    <textarea id="editor" placeholder="Schreibe Markdown... Markiere Text für Shader.">
-# ✨ Willkommen
+  <div class="toolbar">
+    <select id="shaderSelect">
+      <option value="">🎨 Shader auswählen...</option>
+      <option value="sh-rainbow">🌈 Rainbow</option>
+      <option value="sh-glow">✨ Glow</option>
+      <option value="sh-neon">💡 Neon</option>
+      <option value="sh-fire">🔥 Fire</option>
+      <option value="sh-ice">❄️ Ice</option>
+      <option value="sh-shadow">👤 Shadow</option>
+      <option value="sh-outline">🖊️ Outline</option>
+      <option value="sh-gradient-bg">🎨 Gradient BG</option>
+      <option value="sh-warn">⚠️ Warnung</option>
+      <option value="sh-spin">🔄 Spin</option>
+      <option value="sh-bounce">⬆️ Bounce</option>
+      <option value="sh-wave">🌊 Wave</option>
+      <option value="sh-glitch">🤖 Glitch</option>
+      <option value="sh-sparkle">✨ Sparkle</option>
+      <option value="sh-holo">💿 Holo</option>
+      <option value="sh-matrix">🟢 Matrix</option>
+      <option value="sh-void">⬛ Void</option>
+      <option value="sh-underline-glow">🔗 Underline Glow</option>
+      <option value="sh-strike-glow">❌ Strike Glow</option>
+      <option value="sh-double-line">⏸️ Double Line</option>
+      <option value="sh-zoom">🔍 Zoom</option>
+      <option value="sh-pulse">💓 Pulse</option>
+      <option value="sh-flicker">📺 Flicker</option>
+      <option value="sh-reveal">👁️ Reveal</option>
+      <option value="sh-blur">🌫️ Blur (hover)</option>
+      <option value="sh-metal">🪙 Metal</option>
+      <option value="sh-emboss">🪨 Emboss</option>
+      <option value="sh-spotlight">🔦 Spotlight</option>
+      <option value="sh-typewriter">⌨️ Typewriter</option>
+      <option value="sh-shade">🌑 Shade</option>
+      <option value="sh-3d">🧊 3D Pop</option>
+      <option value="sh-vaporwave">🌴 Vaporwave</option>
+      <option value="sh-cyberpunk">🤖 Cyberpunk</option>
+      <option value="sh-gold">🥇 Gold</option>
+      <option value="sh-stripes">🦓 Stripes</option>
+      <option value="sh-rotate">🔄 Rotate</option>
+      <option value="sh-scramble">🔀 Scramble</option>
+    </select>
+    <button onclick="applyShader()">Anwenden</button>
+    <button onclick="copyMD()">📋 Kopieren</button>
+  </div>
+  <textarea id="editor" placeholder="Schreibe Markdown... Markiere Text für Shader.">
+# ✨ Willkommen im Editor
 
 Das ist **fett**, *kursiv* und <span class="sh-rainbow">Regenbogen</span>.
 
 > ⚠️ <span class="sh-warn">Wichtige Warnung!</span>
-    </textarea>
+  </textarea>
 </div>
 <div class="pane">
-    <h3 style="margin:0 0 10px;">📄 Vorschau</h3>
-    <div class="preview-box" id="preview"></div>
+  <h3 style="margin:0 0 10px;">📄 Vorschau</h3>
+  <div class="preview-box" id="preview"></div>
 </div>
 
 <script>
-    const editor = document.getElementById('editor');
-    const preview = document.getElementById('preview');
-    const shaderSelect = document.getElementById('shaderSelect');
+  const editor = document.getElementById('editor');
+  const preview = document.getElementById('preview');
+  const shaderSelect = document.getElementById('shaderSelect');
 
-    marked.setOptions({ breaks:true, gfm:true, sanitize:false });
+  marked.setOptions({ breaks:true, gfm:true, sanitize:false });
 
-    function updatePreview() { preview.innerHTML = marked.parse(editor.value); }
-    editor.addEventListener('input', updatePreview);
+  function updatePreview() { preview.innerHTML = marked.parse(editor.value); }
+  editor.addEventListener('input', updatePreview);
+  updatePreview();
+
+  function applyShader() {
+    const shader = shaderSelect.value;
+    if (!shader) return alert('Shader auswählen.');
+    const start = editor.selectionStart, end = editor.selectionEnd;
+    if (start === end) return alert('Text markieren.');
+    const selected = editor.value.substring(start, end);
+    const wrapped = `<span class="${shader}">${selected}</span>`;
+    editor.setRangeText(wrapped, start, end, 'select');
+    editor.focus();
     updatePreview();
-
-    function applyShader() {
-        const shader = shaderSelect.value;
-        if (!shader) return alert('Shader auswählen.');
-        const start = editor.selectionStart, end = editor.selectionEnd;
-        if (start === end) return alert('Text markieren.');
-        const selected = editor.value.substring(start, end);
-        const wrapped = `<span class="${shader}">${selected}</span>`;
-        editor.setRangeText(wrapped, start, end, 'select');
-        editor.focus();
-        updatePreview();
-    }
-    function copyMD() {
-        navigator.clipboard.writeText(editor.value).then(() => alert('✅ Kopiert!'));
-    }
+  }
+  function copyMD() {
+    navigator.clipboard.writeText(editor.value).then(() => alert('✅ Kopiert!'));
+  }
 </script>
 </body>
 </html>
