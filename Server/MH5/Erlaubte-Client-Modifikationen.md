@@ -3,6 +3,7 @@
 
 
 :::green
+
 ## Erlaubte Client Modifikationen
 
 * Replay Mod / FlashBack **(Nur für content Creation)**
@@ -135,6 +136,7 @@
 
 
 :::red
+
 ## Verbotene Client Modifikationen
 
 * Hack Clients **(ANY KIND OF HACK CLIENT)**
