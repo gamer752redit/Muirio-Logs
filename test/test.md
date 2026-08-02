@@ -1,9 +1,6 @@
-# Willkommen im Editor
+Hallo, 
+<span class="sh-rainbow">Das ist krass</span>
 
-Das ist ein **Beispieltext**. Markiere einen Textbereich und wähle einen Shader aus der Liste.
+<span class="sh-typewriter">oder nicht? </span>
 
-> ⚠️ **Warnung:** Dieser Text ist mit `sh-warn` formatiert.
-
-🌈 <span class="sh-rainbow">Regenbogen-Text</span>
-✨ <span class="sh-glow">Leuchtender Text</span>
-    
+<span class="sh-shade">YAY</span>
