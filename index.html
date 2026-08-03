@@ -105,15 +105,26 @@
     .breadcrumb span:hover { text-decoration: underline; }
 
     .meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-    .btn-group { display: flex; gap: 10px; }
-    .back-btn, .action-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
-    .back-btn:hover, .action-btn:hover { background: var(--bg-card-hover); color: var(--text-heading); border-color: var(--accent); }
-    .action-btn.primary { background: rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); color: #c084fc; }
-    .action-btn.primary:hover { background: rgba(139, 92, 246, 0.35); border-color: var(--accent); }
+    .back-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+    .back-btn:hover { background: var(--bg-card-hover); color: var(--text-heading); border-color: var(--accent); }
 
+    /* Dezenter Edit-Button am Seitenende */
+    .subtle-edit-container { margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+    .subtle-edit-btn {
+      background: transparent; border: 1px dashed var(--border); color: var(--text-muted); padding: 6px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .subtle-edit-btn:hover { background: rgba(139, 92, 246, 0.08); border-color: var(--accent); color: var(--text-heading); }
+
+    /* NOTION STYLE HEADINGS (H1 prominent, H2 smaller & indented style) */
     .doc-body h1 { font-size: 2.5rem; color: var(--text-heading); margin-bottom: 0.5em; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; scroll-margin-top: 30px; }
-    .doc-body h2 { font-size: 1.6rem; color: var(--text-heading); margin-top: 1.8em; margin-bottom: 0.6em; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.2em; scroll-margin-top: 30px; }
-    .doc-body h3 { font-size: 1.25rem; color: var(--text-heading); margin-top: 1.4em; margin-bottom: 0.5em; scroll-margin-top: 30px; }
+    .doc-body h2 {
+      font-size: 1.25rem; color: var(--text-muted); margin-top: 1.8em; margin-bottom: 0.5em; font-weight: 600;
+      padding-left: 12px; border-left: 3px solid var(--border); scroll-margin-top: 30px; transition: color 0.2s;
+    }
+    .doc-body h2:hover { color: var(--text-heading); border-left-color: var(--accent); }
+    .doc-body h3 { font-size: 1.1rem; color: var(--text-heading); margin-top: 1.4em; margin-bottom: 0.5em; scroll-margin-top: 30px; }
+    
     .doc-body p, .doc-body li { line-height: 1.75; margin-bottom: 1em; color: var(--text-main); font-size: 0.98rem; }
     .doc-body ul, .doc-body ol { margin-bottom: 1em; padding-left: 20px; }
     .doc-body a { color: var(--accent); text-decoration: none; font-weight: 500; }
@@ -134,19 +145,19 @@
       background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-left: 4px solid #10b981;
       padding: 22px; border-radius: 0 10px 10px 0; margin: 1.8em 0; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
     }
-    .doc-body .box-green h2, .doc-body .box-green h3 { color: #34d399; border-bottom-color: rgba(16, 185, 129, 0.2); }
+    .doc-body .box-green h2, .doc-body .box-green h3 { color: #34d399; border-left-color: #10b981; }
     .doc-body .box-green strong { color: #6ee7b7; }
 
     .doc-body .box-red {
       background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-left: 4px solid #ef4444;
       padding: 22px; border-radius: 0 10px 10px 0; margin: 1.8em 0; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
     }
-    .doc-body .box-red h2, .doc-body .box-red h3 { color: #f87171; border-bottom-color: rgba(239, 68, 68, 0.2); }
+    .doc-body .box-red h2, .doc-body .box-red h3 { color: #f87171; border-left-color: #ef4444; }
     .doc-body .box-red strong { color: #fca5a5; }
 
     /* ── IMPRESSUM STYLING ── */
     .impressum-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 35px; max-width: 750px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-    .impressum-container h2 { font-size: 1.8rem; color: var(--text-heading); margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .impressum-container h2 { font-size: 1.8rem; color: var(--text-heading); margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; border-left: none; padding-left: 0; }
     .impressum-grid { display: grid; grid-template-columns: 180px 1fr; gap: 16px; margin-bottom: 20px; font-size: 0.95rem; align-items: baseline; }
     .impressum-label { font-weight: 600; color: var(--text-muted); }
     .impressum-value { color: var(--text-heading); line-height: 1.5; }
@@ -497,13 +508,13 @@
           </div>
           <div class="meta-bar">
             <button class="back-btn" onclick="goHome()">← Zurück zur Übersicht</button>
-            <div class="btn-group">
-              <button class="action-btn primary" onclick="openEditorMode('${file.path}')">✏️ Bearbeiten & Formatieren</button>
-              <span>Pfad: /${file.path}</span>
-            </div>
+            <span>Pfad: /${file.path}</span>
           </div>
           <div class="doc-body">
             ${parseMarkdownWithAssets(md, file)}
+          </div>
+          <div class="subtle-edit-container">
+            <button class="subtle-edit-btn" onclick="openEditorMode('${file.path}')">✏️ Diese Seite bearbeiten</button>
           </div>
         `;
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -556,7 +567,6 @@
       const target = document.getElementById(id);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Clean highlight animation effect
         target.style.transition = 'color 0.3s ease';
         target.style.color = 'var(--accent)';
         setTimeout(() => {
@@ -579,9 +589,9 @@
         </div>
         <div class="meta-bar">
           <button class="back-btn" onclick="navigateTo('${path}')">← Zurück zur Ansicht</button>
-          <div class="btn-group">
-            <button class="action-btn" onclick="saveEditorContent('${path}')">💾 Speichern</button>
-            <button class="action-btn primary" onclick="copyEditorMarkdown()">📋 Markdown kopieren</button>
+          <div class="btn-group" style="display:flex; gap:10px;">
+            <button class="back-btn" onclick="saveEditorContent('${path}')">💾 Speichern</button>
+            <button class="back-btn" style="border-color:rgba(139,92,246,0.4); color:#c084fc;" onclick="copyEditorMarkdown()">📋 Markdown kopieren</button>
           </div>
         </div>
         <div class="editor-container">
