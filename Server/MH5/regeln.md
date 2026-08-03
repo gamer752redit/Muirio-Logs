@@ -1,4 +1,4 @@
-# **MINECRAFT PROJEKT "MH1" – OFFIZIELLES REGELWERK**
+# **MINECRAFT PROJEKT "MH5" – OFFIZIELLES REGELWERK**
 
 ## WILLKOMMEN BEIM MH1-PROJEKT!
 Dieses Regelwerk gilt für **alle** Teilnehmer des 100-Spieler-Projekts. Das Konzept ist auf maximale Freiheit ausgelegt ("Alles ist erlaubt, was das Gameplay hergibt"), wird jedoch durch eine absolute Fairness- und Respektlinie begrenzt.
