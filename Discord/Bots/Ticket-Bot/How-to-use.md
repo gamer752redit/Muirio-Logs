@@ -14,6 +14,9 @@ create-ticket.mp4
 
 
 ## Report & Unban Website
+
+form-creation.mp4
+
 Für die Meldung von Regelverstößen oder die Verwaltung von gesperrten Nutzern gibt es eine speziell eingerichtete, externe Website. Diese Seite ist streng limitiert und bietet ausschließlich zwei Funktionen:
 
 Reports: Nutzer können hier Probleme mit anderen Spielern melden.
@@ -26,7 +29,7 @@ Im Discord selbst findet man im Menü des Ticket-Systems direkt die passenden Sc
 
 ## Das Support-Ticket-System
 
-Das absolute Herzstück ist das Support-System, welches über den GamerTicket Bot gesteuert wird. Der Ablauf ist stark automatisiert und extrem nutzerfreundlich:
+Das absolute <span class="sh-pulse">Herzstück</span> ist das Support-System, welches über den GamerTicket Bot gesteuert wird. Der Ablauf ist stark automatisiert und extrem nutzerfreundlich:
 
 Ticket eröffnen: Wenn ein Nutzer Hilfe braucht, klickt er auf den Button für ein Support Ticket. Der Bot erstellt sofort einen privaten und isolierten Textkanal *(wie z. B. #support-gamer7521)* .
 
@@ -38,14 +41,14 @@ Problem schildern: Im neuen Kanal wird man vom Bot begrüßt und gebeten, das An
 
 Automatische Antwort aus der Datenbank: Sobald der Nutzer seine Frage stellt (z. B. „wo ist der main chat“), analysiert der Bot die Nachricht. Er sucht in einer internen Wissensdatenbank nach ähnlichen Fragen. Findet er eine hohe Übereinstimmung (z. B. 90 %), liefert er in Bruchteilen einer Sekunde eine automatische Antwort mit dem passenden Lösungsvorschlag oder Link.
 
-Echten Admin hinzuziehen: Nach der automatischen Antwort fragt der Bot interaktiv nach, ob das Problem gelöst wurde. Wenn die Antwort aus der Datenbank nicht geholfen hat, klickt der Nutzer auf „Nein, Support benötigt“. Das Server-Team wird alarmiert und ein menschlicher Supporter tritt dem Ticket bei, um persönlich zu helfen.
+Echten Admin hinzuziehen: Nach der automatischen Antwort fragt der Bot interaktiv nach, ob das Problem gelöst wurde. Wenn die Antwort aus der Datenbank nicht geholfen hat, klickt der Nutzer auf <span class="sh-fire">„Nein, Support benötigt“</span> . Das Server-Team wird alarmiert und ein menschlicher Supporter tritt dem Ticket bei, um persönlich zu helfen.
 
 
 
 
 ## Ticket schließen
 
-Hat die automatische Antwort das Problem gelöst, klickt der Nutzer auf „Ja, Problem gelöst“. Der Bot sendet daraufhin eine Anfrage zur Schließung des Tickets.
+Hat die automatische Antwort das Problem gelöst, klickt der Nutzer auf <span class="sh-glow">„Ja, Problem gelöst“</span> . Der Bot sendet daraufhin eine Anfrage zur Schließung des Tickets.
 
 Sicherheitsabfrage: Für die endgültige Schließung eines Tickets verlangt das System zwei Zustimmungen. Es wird sowohl die Bestätigung des Ticket-Erstellers als auch die eines Admins benötigt, bevor der Vorgang endgültig abgeschlossen wird.
 
