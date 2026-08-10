@@ -242,6 +242,22 @@
     let allFilesMap = new Map();
     let treeFolders = [];
     let expanded = {};
+    let htmlContentCache = new Map();  // Cache für HTML-Dateiinhalte
+
+    // Hilfsfunktion: HTML escapen
+    function escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // Hilfsfunktion: lokales Asset im selben Ordner finden
+    function findLocalAssetByName(fileName, dirPath, ext) {
+      for (let [path, asset] of allFilesMap.entries()) {
+        if (asset.name === fileName && asset.ext === ext && path === dirPath + fileName) {
+          return asset;
+        }
+      }
+      return null;
+    }
 
     // 1. Repository-Struktur rekursiv laden
     async function fetchDir(path = '') {
@@ -273,6 +289,21 @@
 
     async function initGitHub() {
       treeFolders = await fetchDir();
+      
+      // HTML-Inhalte vorab laden
+      const htmlFiles = [...allFilesMap.values()].filter(f => f.ext === 'html');
+      await Promise.all(htmlFiles.map(async (f) => {
+        try {
+          const resp = await fetch(f.download_url);
+          if (resp.ok) {
+            const content = await resp.text();
+            htmlContentCache.set(f.path, content);
+          }
+        } catch(e) {
+          console.warn(`Konnte HTML-Datei nicht laden: ${f.path}`);
+        }
+      }));
+
       renderSidebar();
       handleRoute();
     }
@@ -456,10 +487,28 @@
       `;
     }
 
-    // Markdown Parser Hilfsfunktion mit Asset-Einbettung & Boxen
+    // Markdown Parser Hilfsfunktion mit Asset-Einbettung, Boxen & HTML-Embeds
     function parseMarkdownWithAssets(md, file) {
       const dirPath = file.path.includes('/') ? file.path.substring(0, file.path.lastIndexOf('/') + 1) : '';
 
+      // --- Schritt 0: (url: "...") Embed-Syntax für HTML-Seiten und externe URLs ---
+      md = md.replace(/\(url:\s*"([^"]+)"\)/g, (match, url) => {
+        // Prüfen, ob es sich um eine lokale HTML-Datei handelt
+        const localAsset = findLocalAssetByName(url, dirPath, 'html');
+        if (localAsset && htmlContentCache.has(localAsset.path)) {
+          const content = htmlContentCache.get(localAsset.path);
+          // HTML-Inhalt escapen, um Injektion zu vermeiden, aber srcdoc benötigt den rohen Code
+          return `<iframe srcdoc="${content.replace(/"/g, '&quot;')}" style="width:100%; height:400px; border:1px solid var(--border); border-radius:8px; margin:1.2em 0;"></iframe>`;
+        } else if (/^https?:\/\//i.test(url)) {
+          // externe URL
+          return `<iframe src="${url}" style="width:100%; height:400px; border:1px solid var(--border); border-radius:8px; margin:1.2em 0;"></iframe>`;
+        } else {
+          // Fallback: als Link anzeigen
+          return `<a href="${url}" target="_blank" style="color:var(--accent);">${url}</a>`;
+        }
+      });
+
+      // --- Bisherige Asset-Ersetzungen (Bilder, Videos, Audio) ---
       for (let [path, asset] of allFilesMap.entries()) {
         if (path.startsWith(dirPath) && path !== file.path && !path.substring(dirPath.length).includes('/')) {
           const assetName = asset.name;
@@ -483,6 +532,19 @@
         }
       }
 
+      // --- Schritt 2: HTML-Dateien im selben Ordner als Code anzeigen (bloßer Dateiname) ---
+      for (let [path, asset] of allFilesMap.entries()) {
+        if (asset.ext === 'html' && path.startsWith(dirPath) && !path.substring(dirPath.length).includes('/') && htmlContentCache.has(path)) {
+          const escapedName = asset.name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+          const rawHtml = htmlContentCache.get(path);
+          const escapedHtml = escapeHtml(rawHtml);
+          const replacement = `<pre><code class="language-html">${escapedHtml}</code></pre>`;
+          // Ersetze nur, wenn das Muster nicht innerhalb von HTML-Tags steht (einfacher Wortgrenzen-Ansatz)
+          md = md.replace(new RegExp(`\\b${escapedName}\\b`, 'g'), replacement);
+        }
+      }
+
+      // --- Grüne / Rote Boxen ---
       md = md.replace(/:::green([\s\S]*?):::/g, '<div class="box-green">$1</div>');
       md = md.replace(/:::red([\s\S]*?):::/g, '<div class="box-red">$1</div>');
 
@@ -607,6 +669,7 @@
             <button onclick="insertFormat('code')">&lt;/&gt; Code</button>
             <button onclick="insertFormat('link')">🔗 Link</button>
             <button onclick="insertFormat('ul')">• Liste</button>
+            <button onclick="insertFormat('urlEmbed')" style="border-color: rgba(139,92,246,0.4); color: #c084fc;">🌐 Embed URL</button>
           </div>
 
           <div class="editor-split">
@@ -651,6 +714,9 @@
           break;
         case 'ul':
           replacement = `- ${selectedText || 'Listenpunkt'}`;
+          break;
+        case 'urlEmbed':
+          replacement = `(url: "${selectedText || 'https://'})"`;
           break;
       }
 
