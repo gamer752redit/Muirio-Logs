@@ -1,45 +1,27 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        /* Der Hintergrund der Seite bleibt komplett durchsichtig */
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: transparent;
-        }
-
-        /* Das moderne Button-Design im Paper-Style */
-        .muirio-button {
-            padding: 18px 40px;
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 20px;
-            font-weight: 600;
-            color: #ffffff;
-            background-color: #6a0dad; /* Kräftiges Violett */
-            border: 3px solid #ffffff; /* Weißer Rahmen für den Paper-Look */
-            border-radius: 8px; /* Leicht eckig, moderner Style */
-            cursor: pointer;
-            text-decoration: none;
-            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2); /* Schatten für den 3D-Paper-Effekt */
-            transition: all 0.3s ease;
-        }
-
-        .muirio-button:hover {
-            background-color: #8a2be2;
-            transform: translate(-2px, -2px); /* Button hebt sich beim Drüberfahren leicht */
-            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.25);
-        }
-    </style>
-</head>
+<html>
 <body>
 
-    <!-- Der Button, der in einem neuen Tab öffnet -->
-    <a href="https://muirio.netlify.app" target="_blank" class="muirio-button">Besuche Muirio.de</a>
+<!-- 
+    Abgerundete Ecken sind in 'reinem HTML' (ohne CSS) nicht möglich, 
+    da HTML nur für die Struktur zuständig ist. 
+    Hier ist die Lösung mit dem notwendigen Inline-CSS für den 'border-radius'.
+-->
+
+<a href="https://muirio.netlify.app" target="_blank" 
+   style="display: inline-block; 
+          padding: 20px 40px; 
+          background-color: #6a0dad; 
+          color: #ffffff; 
+          text-decoration: none; 
+          font-family: sans-serif; 
+          font-size: 20px; 
+          font-weight: bold; 
+          border: 3px solid #ffffff; 
+          border-radius: 25px; 
+          text-align: center;">
+    Besuche Muirio.de
+</a>
 
 </body>
 </html>
