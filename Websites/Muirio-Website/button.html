@@ -1,27 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Muirio Link Button</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
+
+        .btn-modern {
+            padding: 15px 30px;
+            font-family: 'Arial', sans-serif;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #6a0dad; /* Purple */
+            border: 2px solid #ffffff;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, background-color 0.3s;
+            box-shadow: 0 4px 15px rgba(106, 13, 173, 0.4);
+        }
+
+        .btn-modern:hover {
+            background-color: #8a2be2;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
 <body>
 
-<!-- 
-    Abgerundete Ecken sind in 'reinem HTML' (ohne CSS) nicht möglich, 
-    da HTML nur für die Struktur zuständig ist. 
-    Hier ist die Lösung mit dem notwendigen Inline-CSS für den 'border-radius'.
--->
-
-<a href="https://muirio.netlify.app" target="_blank" 
-   style="display: inline-block; 
-          padding: 20px 40px; 
-          background-color: #6a0dad; 
-          color: #ffffff; 
-          text-decoration: none; 
-          font-family: sans-serif; 
-          font-size: 20px; 
-          font-weight: bold; 
-          border: 3px solid #ffffff; 
-          border-radius: 25px; 
-          text-align: center;">
-    Besuche Muirio.de
-</a>
+    <a href="https://muirio.netlify.app" target="_blank" class="btn-modern">Besuche Muirio.de</a>
 
 </body>
 </html>
