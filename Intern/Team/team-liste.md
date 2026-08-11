@@ -8,7 +8,7 @@
 ## Owner / Admin´s
 
 * Muirio72 (Muirio72) - Owner
-* gamer7521 (gamer_752)
+* gamer7521 (gamer_752) - Admin
 
 
 
@@ -32,7 +32,7 @@
 
 ## Designer
 
-* naterhythm (X)
+* naterhythm (X) - 2d / 3d motion graphic design
 
 
 
